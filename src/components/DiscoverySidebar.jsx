@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Search, CheckCircle, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Star, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function DiscoverySidebar({
   pandals,
@@ -22,26 +22,46 @@ export default function DiscoverySidebar({
 
   return (
     <aside
-      className={`fixed top-4 bottom-4 left-4 z-30 transition-all duration-300 ease-in-out font-sans ${
-        isOpen ? 'w-80 sm:w-96 translate-x-0' : 'w-0 -translate-x-full pointer-events-none'
+      className={`fixed z-30 transition-all duration-300 ease-in-out font-sans ${
+        /* Mobile Layout: Bottom Sheet */
+        isOpen
+          ? 'bottom-2 left-2 right-2 top-auto sm:top-4 sm:bottom-4 sm:left-4 sm:right-auto w-auto sm:w-96 max-h-[65vh] sm:max-h-none translate-y-0 sm:translate-x-0'
+          : 'translate-y-full sm:translate-y-0 sm:-translate-x-full pointer-events-none'
       }`}
     >
-      {/* Toggle Tab Button attached to right edge */}
+      {/* Toggle Tab Button — Desktop attached to right edge, Mobile pull tab */}
       <button
         onClick={onToggleOpen}
-        className={`pointer-events-auto absolute top-6 -right-9 w-9 h-11 bg-white border border-slate-200 text-slate-700 rounded-r-xl shadow-md flex items-center justify-center transition hover:bg-slate-50 cursor-pointer ${
-          !isOpen ? 'translate-x-9' : ''
-        }`}
+        className={`pointer-events-auto absolute z-40 bg-white border border-slate-200 text-slate-700 shadow-md flex items-center justify-center transition hover:bg-slate-50 cursor-pointer ${
+          /* Desktop position */
+          'hidden sm:flex top-6 -right-9 w-9 h-11 rounded-r-xl'
+        } ${!isOpen ? 'sm:translate-x-9' : ''}`}
         title={isOpen ? "Collapse Sidebar" : "Explore Pandals"}
       >
-        {isOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        <ChevronLeft className="w-4 h-4" />
       </button>
+
+      {/* Mobile Toggle Trigger Button (Floating on bottom when collapsed) */}
+      {!isOpen && (
+        <button
+          onClick={onToggleOpen}
+          className="pointer-events-auto fixed bottom-14 left-1/2 -translate-x-1/2 sm:hidden z-30 bg-[#7A1C1C] text-white px-4 py-2 rounded-full font-semibold text-xs shadow-xl flex items-center gap-1.5 border border-white/20 animate-bounce"
+        >
+          <span>🪔 Explore Pandals ({pandals.length})</span>
+          <ChevronUp className="w-4 h-4" />
+        </button>
+      )}
 
       {/* Main Minimal Sidebar Container */}
       <div className="pointer-events-auto w-full h-full bg-[#FBF9F6] border border-slate-200/90 shadow-2xl rounded-3xl flex flex-col overflow-hidden text-slate-900">
         
+        {/* Mobile Pull Indicator Handle */}
+        <div className="sm:hidden w-full flex justify-center py-2 bg-white border-b border-slate-100 cursor-pointer" onClick={onToggleOpen}>
+          <div className="w-12 h-1 bg-slate-300 rounded-full" />
+        </div>
+
         {/* Search Header Bar */}
-        <div className="p-4 bg-white border-b border-slate-100 space-y-3 shrink-0">
+        <div className="p-3.5 sm:p-4 bg-white border-b border-slate-100 space-y-2.5 shrink-0">
           
           {/* Search Input Box */}
           <div className="relative">
@@ -51,7 +71,7 @@ export default function DiscoverySidebar({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search pandals in Bengaluru"
-              className="w-full pl-10 pr-8 py-2.5 bg-white text-slate-800 placeholder:text-slate-400 text-xs sm:text-sm rounded-full border border-slate-200 focus:border-amber-600 focus:outline-none shadow-sm transition font-medium"
+              className="w-full pl-10 pr-8 py-2 bg-white text-slate-800 placeholder:text-slate-400 text-xs sm:text-sm rounded-full border border-slate-200 focus:border-amber-600 focus:outline-none shadow-sm transition font-medium"
             />
             {searchQuery && (
               <button
@@ -71,7 +91,7 @@ export default function DiscoverySidebar({
                 <button
                   key={filter.id}
                   onClick={() => onFilterToggle(filter.id)}
-                  className={`shrink-0 text-xs px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer ${
+                  className={`shrink-0 text-xs px-3 py-1 rounded-full font-medium transition cursor-pointer ${
                     isActive
                       ? 'bg-[#7A1C1C] text-white font-semibold shadow-sm'
                       : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
@@ -87,17 +107,20 @@ export default function DiscoverySidebar({
 
         {/* Results Counter Sub-header */}
         <div className="px-4 py-2 bg-[#FBF9F6] border-b border-slate-200/60 flex items-center justify-between text-xs text-slate-500 font-medium">
-          <span>{pandals.length} pandals found</span>
-          <span className="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
-            🟢 Live Updates
-          </span>
+          <span>{pandals.length} pandals found in Bengaluru</span>
+          <button
+            onClick={onToggleOpen}
+            className="sm:hidden text-slate-400 hover:text-slate-600 p-1"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Scrollable Pandals Minimal Cards List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-[#FBF9F6]">
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-[#FBF9F6]">
           {pandals.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 space-y-2">
-              <Search className="w-8 h-8 text-slate-300 mx-auto" />
+            <div className="p-6 text-center text-slate-500 space-y-2">
+              <Search className="w-7 h-7 text-slate-300 mx-auto" />
               <p className="text-xs font-semibold text-slate-700">No pandals found</p>
               <p className="text-[11px] text-slate-400">Try adjusting your search terms</p>
             </div>
@@ -108,7 +131,7 @@ export default function DiscoverySidebar({
                 <div
                   key={pandal.id}
                   onClick={() => onSelectPandal(pandal)}
-                  className={`p-3 rounded-2xl transition duration-150 cursor-pointer flex items-center gap-3.5 border ${
+                  className={`p-2.5 sm:p-3 rounded-2xl transition duration-150 cursor-pointer flex items-center gap-3 border ${
                     isSelected
                       ? 'bg-white border-[#7A1C1C] ring-1 ring-[#7A1C1C]/30 shadow-md'
                       : 'bg-white border-slate-200/80 hover:border-slate-300 hover:shadow-sm'
@@ -118,7 +141,7 @@ export default function DiscoverySidebar({
                   <img
                     src={pandal.coverImage}
                     alt={pandal.name}
-                    className="w-16 h-16 rounded-xl object-cover border border-slate-100 bg-slate-100 shrink-0 shadow-sm"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-slate-100 bg-slate-100 shrink-0 shadow-sm"
                   />
 
                   {/* Info Details */}

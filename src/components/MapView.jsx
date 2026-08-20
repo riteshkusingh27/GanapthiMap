@@ -1,9 +1,15 @@
-import React, { useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { BENGALURU_CENTER } from '../data/pandalsData';
-import { Sparkles, Leaf, Flame, ShieldCheck, MapPin, Navigation, Clock, Move } from 'lucide-react';
+import { Sparkles, Leaf, Clock } from 'lucide-react';
+
+// Strict Bengaluru Region Boundaries (South-West [12.70, 77.30] to North-East [13.25, 77.85])
+const BENGALURU_BOUNDS = [
+  [12.70, 77.30],
+  [13.25, 77.85]
+];
 
 // Fix default leaflet icons broken issue in Vite
 delete L.Icon.Default.prototype._getIconUrl;
@@ -15,46 +21,37 @@ L.Icon.Default.mergeOptions({
 
 // Custom SVG & Photo Pandal Marker Generator
 const createCustomMarkerIcon = (pandal, isSelected) => {
-  let borderColor = '#D97706'; // Amber default
+  let borderColor = '#7A1C1C';
   let badgeIcon = '🪔';
-  let badgeBgColor = '#D97706';
-  let glowColor = 'rgba(217, 119, 6, 0.4)';
+  let badgeBgColor = '#7A1C1C';
 
-  if (pandal.status === 'pending') {
-    borderColor = '#6B7280';
-    badgeIcon = '⏳';
-    badgeBgColor = '#4B5563';
-    glowColor = 'rgba(107, 114, 128, 0.3)';
-  } else if (pandal.isEcoFriendly) {
+  if (pandal.isEcoFriendly) {
     borderColor = '#059669';
     badgeIcon = '🌿';
     badgeBgColor = '#059669';
-    glowColor = 'rgba(5, 150, 105, 0.4)';
   } else if (pandal.isFeatured) {
     borderColor = '#D97706';
     badgeIcon = '👑';
     badgeBgColor = '#D97706';
-    glowColor = 'rgba(217, 119, 6, 0.6)';
   } else if (pandal.isTrending) {
     borderColor = '#DC2626';
     badgeIcon = '🔥';
     badgeBgColor = '#DC2626';
-    glowColor = 'rgba(220, 38, 38, 0.4)';
   }
 
-  const selectedClass = isSelected ? 'scale-125 z-50 ring-4 ring-amber-500 shadow-2xl' : 'hover:scale-110';
+  const selectedClass = isSelected ? 'scale-125 z-50 ring-4 ring-[#7A1C1C] shadow-2xl' : 'hover:scale-110';
   const photoUrl = pandal.coverImage || (pandal.images && pandal.images[0]) || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&w=300&q=80';
 
   const html = `
     <div class="relative flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${selectedClass}" style="width: 44px; height: 50px;">
-      ${pandal.isFeatured ? `<div class="absolute -inset-1 rounded-full bg-amber-400 opacity-50 animate-ping"></div>` : ''}
+      ${pandal.isFeatured ? `<div class="absolute -inset-1 rounded-full bg-amber-400 opacity-40 animate-ping"></div>` : ''}
       
       <!-- Photo Badge Circle -->
-      <div class="relative z-10 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center" style="width: 40px; height: 40px; border: 2.5px solid ${borderColor}; box-shadow: 0 6px 14px -3px ${glowColor};">
+      <div class="relative z-10 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center" style="width: 40px; height: 40px; border: 2.5px solid ${borderColor}; shadow: 0 4px 10px rgba(0,0,0,0.15);">
         <img src="${photoUrl}" alt="${pandal.name}" style="width: 100%; height: 100%; object-fit: cover;" />
         
         <!-- Corner Category Badge -->
-        <div class="absolute -bottom-0.5 -right-0.5 text-white rounded-full flex items-center justify-center select-none" style="width: 16px; height: 16px; font-size: 8px; background-color: ${badgeBgColor}; border: 1.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+        <div class="absolute -bottom-0.5 -right-0.5 text-white rounded-full flex items-center justify-center select-none" style="width: 16px; height: 16px; font-size: 8px; background-color: ${badgeBgColor}; border: 1.5px solid #ffffff;">
           ${badgeIcon}
         </div>
       </div>
@@ -73,7 +70,6 @@ const createCustomMarkerIcon = (pandal, isSelected) => {
   });
 };
 
-// Component to handle map clicks
 function MapEventsHandler({ onMapClick }) {
   useMapEvents({
     click(e) {
@@ -85,7 +81,6 @@ function MapEventsHandler({ onMapClick }) {
   return null;
 }
 
-// Component to handle map sizing, window resizes, and pan to selected pandal
 function MapController({ selectedPandal, userLocation, setMapInstance }) {
   const map = useMap();
 
@@ -129,7 +124,7 @@ function MapController({ selectedPandal, userLocation, setMapInstance }) {
   return null;
 }
 
-export default function MapView({ pandals, selectedPandal, onSelectPandal, userLocation, onUserLocationDrag, onMapClick, mapStyle = 'dark', setMapInstance }) {
+export default function MapView({ pandals, selectedPandal, onSelectPandal, userLocation, onUserLocationDrag, onMapClick, mapStyle = 'light', setMapInstance }) {
   const tileUrl = mapStyle === 'dark'
     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
@@ -139,12 +134,16 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
       <MapContainer
         center={userLocation ? [userLocation.lat, userLocation.lng] : BENGALURU_CENTER}
         zoom={12}
+        minZoom={10}
+        maxZoom={18}
+        maxBounds={BENGALURU_BOUNDS}
+        maxBoundsViscosity={1.0}
         scrollWheelZoom={true}
         className="w-full h-full"
         zoomControl={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url={tileUrl}
           maxZoom={19}
         />
@@ -152,7 +151,7 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
         <MapController selectedPandal={selectedPandal} userLocation={userLocation} setMapInstance={setMapInstance} />
         <MapEventsHandler onMapClick={onMapClick} />
 
-        {/* User GPS Location Marker with Drag Capability */}
+        {/* User Location Pin */}
         {userLocation && (
           <>
             <Circle
@@ -175,7 +174,7 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
               icon={L.divIcon({
                 html: `
                   <div class="relative flex items-center justify-center cursor-move">
-                    <div class="w-6 h-6 bg-blue-600 rounded-full border-2 border-white shadow-2xl flex items-center justify-center text-white">
+                    <div class="w-6 h-6 bg-blue-600 rounded-full border-2 border-white shadow-xl flex items-center justify-center text-white">
                       <span class="text-xs">📍</span>
                     </div>
                     <div class="absolute -inset-1.5 bg-blue-400 rounded-full opacity-40 animate-ping"></div>
@@ -189,7 +188,7 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
               <Popup className="rounded-xl">
                 <div className="text-xs font-semibold text-slate-800 p-1.5 space-y-1">
                   <div className="font-bold text-blue-700 flex items-center gap-1">📍 Your Location</div>
-                  <p className="text-[11px] text-slate-500">Drag this pin if IP geolocation was slightly off!</p>
+                  <p className="text-[11px] text-slate-500">Drag to adjust your exact spot in Bengaluru</p>
                 </div>
               </Popup>
             </Marker>
@@ -210,30 +209,30 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
             >
               <Popup className="custom-leaflet-popup">
                 <div className="p-1.5 min-w-[220px] max-w-[260px] font-sans">
-                  <div className="relative h-32 w-full rounded-xl overflow-hidden mb-2.5 bg-slate-900 shadow-inner">
+                  <div className="relative h-32 w-full rounded-xl overflow-hidden mb-2.5 bg-slate-100 shadow-inner">
                     <img
                       src={pandal.coverImage}
                       alt={pandal.name}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2 left-2 bg-slate-950/85 backdrop-blur-md text-amber-300 text-[10px] px-2.5 py-1 rounded-full font-extrabold flex items-center gap-1 border border-amber-500/30">
-                      {pandal.isEcoFriendly ? <Leaf className="w-3 h-3 text-emerald-400" /> : <Sparkles className="w-3 h-3 text-amber-400" />}
+                    <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md text-[#7A1C1C] text-[10px] px-2.5 py-1 rounded-full font-bold flex items-center gap-1 border border-slate-200 shadow-sm">
+                      {pandal.isEcoFriendly ? <Leaf className="w-3 h-3 text-emerald-600" /> : <Sparkles className="w-3 h-3 text-amber-500" />}
                       {pandal.locality}
                     </div>
                   </div>
 
-                  <h4 className="font-extrabold text-white text-sm leading-tight mb-1">{pandal.name}</h4>
-                  <p className="text-[11px] text-slate-300 font-medium line-clamp-1 mb-3">{pandal.address}</p>
+                  <h4 className="font-bold text-slate-900 text-sm leading-tight mb-1">{pandal.name}</h4>
+                  <p className="text-[11px] text-slate-500 font-normal line-clamp-1 mb-3">{pandal.address}</p>
                   
-                  <div className="flex items-center justify-between gap-2 border-t border-slate-800/80 pt-2.5">
-                    <div className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-amber-400" /> {pandal.darshanTimings?.split('-')[0] || 'Open'}
+                  <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-2">
+                    <div className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-emerald-600" /> {pandal.darshanTimings?.split('-')[0] || 'Open'}
                     </div>
                     <button
                       onClick={() => onSelectPandal(pandal)}
-                      className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-black px-3.5 py-1.5 rounded-xl transition shadow-md shadow-amber-500/25"
+                      className="bg-[#7A1C1C] hover:bg-[#601616] text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-sm"
                     >
-                      View Details
+                      Details
                     </button>
                   </div>
                 </div>
