@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -86,8 +86,14 @@ function MapEventsHandler({ onMapClick }) {
 }
 
 // Component to handle map sizing, window resizes, and pan to selected pandal
-function MapController({ selectedPandal, userLocation }) {
+function MapController({ selectedPandal, userLocation, setMapInstance }) {
   const map = useMap();
+
+  useEffect(() => {
+    if (setMapInstance) {
+      setMapInstance(map);
+    }
+  }, [map, setMapInstance]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -123,7 +129,11 @@ function MapController({ selectedPandal, userLocation }) {
   return null;
 }
 
-export default function MapView({ pandals, selectedPandal, onSelectPandal, userLocation, onUserLocationDrag, onMapClick }) {
+export default function MapView({ pandals, selectedPandal, onSelectPandal, userLocation, onUserLocationDrag, onMapClick, mapStyle = 'dark', setMapInstance }) {
+  const tileUrl = mapStyle === 'dark'
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
   return (
     <div className="w-full h-full absolute inset-0 z-0">
       <MapContainer
@@ -135,11 +145,11 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          url={tileUrl}
           maxZoom={19}
         />
 
-        <MapController selectedPandal={selectedPandal} userLocation={userLocation} />
+        <MapController selectedPandal={selectedPandal} userLocation={userLocation} setMapInstance={setMapInstance} />
         <MapEventsHandler onMapClick={onMapClick} />
 
         {/* User GPS Location Marker with Drag Capability */}

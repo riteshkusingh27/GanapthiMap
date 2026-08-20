@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import MapView from './components/MapView';
 import HeaderSearch from './components/HeaderSearch';
+import DiscoverySidebar from './components/DiscoverySidebar';
+import MapControls from './components/MapControls';
+import FloatingPandalCard from './components/FloatingPandalCard';
+import LiveStatusBar from './components/LiveStatusBar';
 import PandalDetailSheet from './components/PandalDetailSheet';
-import AddPandalModal from './components/AddPandalModal';
 import AdminDrawer from './components/AdminDrawer';
 import EventsModal from './components/EventsModal';
 import AdminRoutePage from './components/AdminRoutePage';
-import { initialPandals, LOCALITY_COORDINATES, BENGALURU_CENTER } from './data/pandalsData';
-import { Bookmark, Sparkles, Navigation, Info, MapPin, Move, CheckCircle2 } from 'lucide-react';
+import { initialPandals, LOCALITY_COORDINATES } from './data/pandalsData';
+import { Navigation } from 'lucide-react';
 
 export default function App() {
-  // Simple Client-Side Router for /admin
+  // Router State
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export default function App() {
     setCurrentPath(path);
   };
 
-  // Persistence with LocalStorage
+  // Local Storage Persistence
   const [pandals, setPandals] = useState(() => {
     const saved = localStorage.getItem('ganapathimap_pandals');
     return saved ? JSON.parse(saved) : initialPandals;
@@ -49,18 +52,23 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocality, setSelectedLocality] = useState('All');
   const [activeFilter, setActiveFilter] = useState('all');
-  
-  // Selection & Location States
+
+  // UI Layout States
   const [selectedPandal, setSelectedPandal] = useState(null);
+  const [isFullSheetOpen, setIsFullSheetOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [mapStyle, setMapStyle] = useState('light'); // 'light' default
+  const [mapInstance, setMapInstance] = useState(null);
+
+  // User Location State
   const [userLocation, setUserLocation] = useState(null);
   const [locationToast, setLocationToast] = useState('');
-  
-  // Modals
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Modals & Drawers
   const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false);
   const [isEventsModalOpen, setIsEventsModalOpen] = useState(false);
 
-  // High Accuracy Geolocation Trigger
+  // Geolocation trigger
   const handleLocateMe = () => {
     setLocationToast('Detecting high-accuracy GPS position...');
     if (navigator.geolocation) {
@@ -71,36 +79,20 @@ export default function App() {
             lng: position.coords.longitude
           };
           setUserLocation(coords);
-          setLocationToast('📍 GPS Location Updated! (Drag blue pin if slightly off)');
-          setTimeout(() => setLocationToast(''), 4000);
+          setLocationToast('📍 GPS Location Updated!');
+          setTimeout(() => setLocationToast(''), 3500);
         },
         (error) => {
-          setLocationToast('⚠️ GPS permission denied or unavailable. Please pick your area below.');
+          setLocationToast('⚠️ GPS access unavailable. Pick area below.');
           setTimeout(() => setLocationToast(''), 4000);
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 12000,
-          maximumAge: 0
-        }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
     } else {
       alert('Geolocation is not supported by your browser.');
     }
   };
 
-  // Handle locality change (pans map to that area)
-  const handleLocalityChange = (locality) => {
-    setSelectedLocality(locality);
-    if (locality !== 'All' && LOCALITY_COORDINATES[locality]) {
-      const coords = LOCALITY_COORDINATES[locality];
-      setUserLocation(coords);
-      setLocationToast(`📍 Moved to ${locality}! Drag pin to adjust.`);
-      setTimeout(() => setLocationToast(''), 3500);
-    }
-  };
-
-  // Handle user dragging location pin on map
   const handleUserLocationDrag = (newCoords) => {
     setUserLocation(newCoords);
     setLocationToast('📍 Custom Location Set!');
@@ -201,62 +193,93 @@ export default function App() {
     );
   }
 
-  // DEFAULT MAIN MAP ROUTE: /
+  // DEFAULT MAIN DISCOVERY MAP ROUTE: /
   return (
-    <div className="w-screen h-screen overflow-hidden flex flex-col bg-slate-950 font-sans antialiased relative">
+    <div className="w-screen h-screen overflow-hidden flex flex-col bg-slate-50 font-sans antialiased relative">
       
-      {/* Location Status Toast Banner */}
+      {/* Toast Notification */}
       {locationToast && (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white backdrop-blur-xl border border-amber-500/40 text-xs font-bold px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 animate-bounce">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white border border-slate-700 text-xs font-semibold px-4 py-2 rounded-full shadow-xl flex items-center gap-2 animate-bounce">
           <Navigation className="w-3.5 h-3.5 text-amber-400 animate-spin" />
           <span>{locationToast}</span>
         </div>
       )}
 
-      {/* Floating Header & Search */}
-      <HeaderSearch
+      {/* Top Header Navbar Container */}
+      <div className="absolute top-4 right-4 z-20 pointer-events-none flex items-center gap-2">
+        <HeaderSearch
+          onLocateMe={handleLocateMe}
+          onOpenAdminDrawer={() => setIsAdminDrawerOpen(true)}
+          onOpenEventsModal={() => setIsEventsModalOpen(true)}
+          onNavigateToAdmin={() => navigateTo('/admin')}
+          verifiedCount={verifiedCount}
+        />
+      </div>
+
+      {/* Minimal Left Discovery Sidebar (Matches User's Reference Image) */}
+      <DiscoverySidebar
+        pandals={filteredPandals}
+        selectedPandal={selectedPandal}
+        onSelectPandal={(p) => {
+          setSelectedPandal(p);
+          setIsFullSheetOpen(false);
+        }}
+        isOpen={isSidebarOpen}
+        onToggleOpen={() => setIsSidebarOpen(!isSidebarOpen)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        selectedLocality={selectedLocality}
-        onLocalityChange={handleLocalityChange}
         activeFilter={activeFilter}
         onFilterToggle={handleFilterToggle}
-        onLocateMe={handleLocateMe}
-        onOpenAddModal={() => setIsAddModalOpen(true)}
-        onOpenAdminDrawer={() => setIsAdminDrawerOpen(true)}
-        onOpenEventsModal={() => setIsEventsModalOpen(true)}
-        onNavigateToAdmin={() => navigateTo('/admin')}
-        totalPandalsCount={pandals.length}
-        verifiedCount={verifiedCount}
       />
+
+      {/* Floating Right Map Controls */}
+      <MapControls
+        onZoomIn={() => mapInstance?.zoomIn()}
+        onZoomOut={() => mapInstance?.zoomOut()}
+        onLocateMe={handleLocateMe}
+        mapStyle={mapStyle}
+        onToggleMapStyle={() => setMapStyle(mapStyle === 'dark' ? 'light' : 'dark')}
+      />
+
+      {/* Live Status Badge */}
+      <LiveStatusBar pandals={pandals} />
 
       {/* Main Full-Screen Map Container */}
       <main className="w-full h-full relative z-0">
         <MapView
           pandals={filteredPandals}
           selectedPandal={selectedPandal}
-          onSelectPandal={setSelectedPandal}
+          onSelectPandal={(p) => {
+            setSelectedPandal(p);
+            setIsFullSheetOpen(false);
+          }}
           userLocation={userLocation}
           onUserLocationDrag={handleUserLocationDrag}
+          mapStyle={mapStyle}
+          setMapInstance={setMapInstance}
         />
       </main>
 
-      {/* Slide-Up / Side Drawer Pandal Detail */}
-      <PandalDetailSheet
-        pandal={selectedPandal}
-        onClose={() => setSelectedPandal(null)}
-        onUpdateCrowd={handleUpdateCrowd}
-        isSaved={selectedPandal ? savedPandalIds.includes(selectedPandal.id) : false}
-        onToggleSave={handleToggleSave}
-        onOpenClaimModal={() => alert('Organizers: Please send listing proof to verify@ganapathimap.org')}
-      />
+      {/* Floating Pandal Details Card */}
+      {selectedPandal && !isFullSheetOpen && (
+        <FloatingPandalCard
+          pandal={selectedPandal}
+          onClose={() => setSelectedPandal(null)}
+          onOpenFullSheet={() => setIsFullSheetOpen(true)}
+        />
+      )}
 
-      {/* Community Add Pandal Modal */}
-      <AddPandalModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSubmitPandal={handleAddPandal}
-      />
+      {/* Full Detail Drawer Modal */}
+      {isFullSheetOpen && selectedPandal && (
+        <PandalDetailSheet
+          pandal={selectedPandal}
+          onClose={() => setIsFullSheetOpen(false)}
+          onUpdateCrowd={handleUpdateCrowd}
+          isSaved={savedPandalIds.includes(selectedPandal.id)}
+          onToggleSave={handleToggleSave}
+          onOpenClaimModal={() => alert('Organizers: Please send listing proof to verify@ganapathimap.org')}
+        />
+      )}
 
       {/* Admin Moderation Panel Drawer */}
       <AdminDrawer
@@ -265,7 +288,10 @@ export default function App() {
         pandals={pandals}
         onApprove={handleApprovePandal}
         onReject={handleRejectPandal}
-        onSelectPandal={setSelectedPandal}
+        onSelectPandal={(p) => {
+          setSelectedPandal(p);
+          setIsAdminDrawerOpen(false);
+        }}
       />
 
       {/* Events Calendar Modal */}
@@ -273,8 +299,12 @@ export default function App() {
         isOpen={isEventsModalOpen}
         onClose={() => setIsEventsModalOpen(false)}
         pandals={pandals}
-        onSelectPandal={setSelectedPandal}
+        onSelectPandal={(p) => {
+          setSelectedPandal(p);
+          setIsEventsModalOpen(false);
+        }}
       />
+
     </div>
   );
 }
