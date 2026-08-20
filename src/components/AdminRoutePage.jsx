@@ -43,22 +43,21 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
           setCoords({ lat, lng });
           setGpsAccuracy(accuracy);
 
-          // If accuracy is worse than 500 meters, it's likely IP-based approximate location on desktop
           if (accuracy > 500) {
             setGpsStatus('ip_approx');
-            setToast('⚠️ IP Location detected (~' + (accuracy / 1000).toFixed(1) + ' km approx). Please search or click map for exact spot!');
+            setToast('⚠️ IP Location detected. Search your street or click map below for exact spot!');
           } else {
             setGpsStatus('success');
-            setToast('🎯 High-Accuracy GPS position locked (±' + accuracy + 'm)!');
+            setToast('🎯 High-Accuracy GPS position locked!');
           }
-          setTimeout(() => setToast(''), 4500);
+          setTimeout(() => setToast(''), 4000);
           await reverseGeocode(lat, lng);
         },
         (error) => {
           console.warn("Geolocation error", error);
           setGpsStatus('ip_approx');
-          setToast('⚠️ GPS access denied or unavailable. Please click your spot on map or search area below.');
-          setTimeout(() => setToast(''), 4500);
+          setToast('⚠️ GPS unavailable. Click map or search street below.');
+          setTimeout(() => setToast(''), 4000);
           reverseGeocode(coords.lat, coords.lng);
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
@@ -139,7 +138,7 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
   const handleMapPinSet = (newCoords) => {
     setCoords(newCoords);
     setGpsStatus('manual');
-    setToast(`🎯 Pinned exact spot (${newCoords.lat.toFixed(4)}, ${newCoords.lng.toFixed(4)})!`);
+    setToast(`🎯 Pinned exact spot!`);
     setTimeout(() => setToast(''), 3000);
     reverseGeocode(newCoords.lat, newCoords.lng);
   };
@@ -264,13 +263,13 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToMap}
-            className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-xl text-xs font-extrabold flex items-center gap-2 border border-slate-700 transition"
+            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-2xl text-xs font-extrabold flex items-center gap-2 border border-slate-700 transition"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Map
           </button>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold">
+            <div className="w-9 h-9 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -278,14 +277,14 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
                 Admin <span className="text-amber-500">/admin</span> Route
               </h1>
               <p className="text-[11px] text-slate-400 font-medium mt-0.5">
-                Accurate Location & Photo Pandal Pinning
+                Photo & Location Pandal Pinning
               </p>
             </div>
           </div>
         </div>
 
         <div className="hidden sm:flex items-center gap-2">
-          <span className="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1.5 rounded-full border border-emerald-500/40">
+          <span className="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-3.5 py-1.5 rounded-full border border-emerald-500/40">
             🎯 Pin Point Accuracy Enabled
           </span>
         </div>
@@ -293,41 +292,39 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
 
       {/* IP Location Warning Alert if IP-based */}
       {(gpsStatus === 'ip_approx' || (gpsAccuracy && gpsAccuracy > 500)) && (
-        <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-3 text-xs text-amber-300 flex items-center justify-between gap-3 max-w-7xl mx-auto w-full">
+        <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-3 text-xs text-amber-300 flex items-center justify-between gap-3 max-w-5xl mx-auto w-full">
           <div className="flex items-center gap-2 font-medium">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
             <span>
-              <strong>Notice on Desktop Browsers:</strong> Device location from browser Wi-Fi/IP can be a few km off. 
-              <strong> Please search your street or click directly on the map below</strong> to pin your exact location!
+              <strong>Desktop IP Notice:</strong> Search your street or click directly on the map below to pinpoint exact spot.
             </span>
           </div>
           <button
             onClick={detectLocation}
-            className="px-3 py-1 bg-amber-500 text-slate-950 font-extrabold rounded-lg shrink-0 text-[11px] hover:bg-amber-400 transition"
+            className="px-3 py-1 bg-amber-500 text-slate-950 font-extrabold rounded-xl shrink-0 text-[11px] hover:bg-amber-400 transition"
           >
             Re-detect GPS
           </button>
         </div>
       )}
 
-      {/* Main Content Grid */}
-      <div className="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Main Container */}
+      <div className="flex-1 p-4 sm:p-6 max-w-5xl mx-auto w-full space-y-6">
         
-        {/* Left Column: Photo & Location Setup (7 cols) */}
-        <div className="lg:col-span-7 space-y-6 flex flex-col">
+        {/* Photo & Location Card Panel */}
+        <div className="bg-slate-900/90 rounded-3xl p-6 border border-slate-800 shadow-2xl space-y-6">
           
-          <div className="bg-slate-900/90 rounded-3xl p-5 border border-slate-800 shadow-2xl space-y-5">
-            
-            {/* Step 1: Photo Capture */}
+          {/* Step 1: Photo Capture */}
+          <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Camera className="w-5 h-5 text-amber-400" />
                 <h2 className="font-bold text-base text-white">1. Capture Pandal Photo</h2>
               </div>
-              <span className="text-xs text-amber-400/90 font-medium">Quick Admin Pinning</span>
+              <span className="text-xs text-amber-400/90 font-medium">Camera or Upload</span>
             </div>
 
-            <div className="relative w-full aspect-video rounded-2xl bg-slate-950 border-2 border-dashed border-amber-500/40 overflow-hidden flex flex-col items-center justify-center group shadow-inner">
+            <div className="relative w-full aspect-video max-h-72 rounded-2xl bg-slate-950 border-2 border-dashed border-amber-500/40 overflow-hidden flex flex-col items-center justify-center group shadow-inner">
               {isCapturingLive ? (
                 <div className="w-full h-full relative">
                   <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
@@ -382,182 +379,82 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Step 2: Accurate Location Search & Pinning */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-amber-400" />
-                  <h2 className="font-bold text-base text-white">2. Set Accurate Location</h2>
-                </div>
-                <button
-                  onClick={detectLocation}
-                  className="text-xs text-blue-400 hover:underline flex items-center gap-1 font-bold"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${gpsStatus === 'locating' ? 'animate-spin' : ''}`} />
-                  Re-detect GPS
-                </button>
+          {/* Step 2: Location & Map */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-amber-400" />
+                <h2 className="font-bold text-base text-white">2. Set Accurate Location Pin</h2>
               </div>
-
-              {/* Location Search Bar with Autocomplete */}
-              <div className="relative">
-                <label className="block text-xs font-extrabold text-slate-300 uppercase tracking-wider mb-1">
-                  Search Your Exact Building, Street or Area Name
-                </label>
-                <div className="relative">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => handleAddressSearch(e.target.value)}
-                    placeholder="Type your area, street or landmark (e.g. Koramangala 5th Block, Basavanagudi)..."
-                    className="w-full pl-10 pr-4 py-3 bg-slate-950 text-white font-medium text-xs rounded-xl border border-amber-500/40 focus:border-amber-500 focus:outline-none"
-                  />
-                  {isSearching && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-amber-400 animate-spin">⏳</span>}
-                </div>
-
-                {/* Suggestions dropdown */}
-                {suggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 z-40 bg-slate-900 border border-amber-500/50 rounded-xl mt-1 shadow-2xl overflow-hidden max-h-56 overflow-y-auto">
-                    {suggestions.map((item, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => selectSuggestion(item)}
-                        className="w-full text-left p-3 hover:bg-slate-800 text-xs text-slate-200 border-b border-slate-800/60 transition flex items-center gap-2"
-                      >
-                        <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span className="truncate">{item.display_name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Quick Area Chips */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  Quick Bengaluru Area Presets:
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(LOCALITY_COORDINATES).map(([locName, locCoords]) => (
-                    <button
-                      key={locName}
-                      onClick={() => selectLocalityPreset(locName, locCoords)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold border transition ${
-                        localityName === locName
-                          ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md'
-                          : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
-                      }`}
-                    >
-                      📍 {locName}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Coordinates Badge & Manual Edit */}
-              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-medium">Current Location Pin:</span>
-                  <span className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${
-                    gpsStatus === 'success' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                  }`}>
-                    {gpsStatus === 'success' ? 'High Accuracy GPS' : 'Custom / Map Pinned'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-900 p-2 rounded-xl border border-slate-800 flex items-center justify-between">
-                    <span className="text-slate-500 font-bold">Lat:</span>
-                    <input
-                      type="number"
-                      step="any"
-                      value={coords.lat}
-                      onChange={(e) => handleMapPinSet({ ...coords, lat: parseFloat(e.target.value) || 0 })}
-                      className="w-28 text-right bg-transparent text-emerald-400 font-mono font-bold focus:outline-none"
-                    />
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-xl border border-slate-800 flex items-center justify-between">
-                    <span className="text-slate-500 font-bold">Lng:</span>
-                    <input
-                      type="number"
-                      step="any"
-                      value={coords.lng}
-                      onChange={(e) => handleMapPinSet({ ...coords, lng: parseFloat(e.target.value) || 0 })}
-                      className="w-28 text-right bg-transparent text-emerald-400 font-mono font-bold focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-blue-950/60 p-2.5 rounded-xl border border-blue-800/60 flex items-center gap-2 text-xs text-blue-300 font-medium">
-                  <Target className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>Click anywhere on the map on the right to place the pin on your exact building/road!</span>
-                </div>
-              </div>
-
-              {/* Default Street Pandal Name */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-extrabold text-slate-300 uppercase tracking-wider">
-                  Pandal Name (Auto-set as Street Name)
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={streetName}
-                    onChange={(e) => setStreetName(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-950 text-white font-extrabold text-sm rounded-xl border border-amber-500/50 focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded-full">
-                    Auto Street
-                  </span>
-                </div>
-              </div>
-
-              {/* Other Details Preview */}
-              <div className="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-400">
-                  <Info className="w-4 h-4" />
-                  <span>Other Pandal Details:</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 font-medium">
-                  <div>• Description: <span className="text-slate-500 font-bold">Not added</span></div>
-                  <div>• Theme / Mandap: <span className="text-slate-500 font-bold">Not added</span></div>
-                  <div>• Timings: <span className="text-slate-500 font-bold">Not added</span></div>
-                  <div>• Organizer: <span className="text-slate-500 font-bold">Not added</span></div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
               <button
-                onClick={handlePublishPandal}
-                disabled={!photo}
-                className={`w-full py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 shadow-2xl transition ${
-                  photo
-                    ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-slate-950 shadow-amber-500/30 cursor-pointer'
-                    : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
-                }`}
+                onClick={detectLocation}
+                className="text-xs text-blue-400 hover:underline flex items-center gap-1 font-bold"
               >
-                <Plus className="w-5 h-5" />
-                Publish & Pin Pandal on Map
+                <RefreshCw className={`w-3.5 h-3.5 ${gpsStatus === 'locating' ? 'animate-spin' : ''}`} />
+                Re-detect GPS
               </button>
             </div>
 
-          </div>
+            {/* Location Search Bar with Autocomplete */}
+            <div className="relative">
+              <label className="block text-xs font-extrabold text-slate-300 uppercase tracking-wider mb-1">
+                Search Your Exact Street, Landmark, or Area
+              </label>
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleAddressSearch(e.target.value)}
+                  placeholder="Type street or landmark (e.g. Koramangala 5th Block, Basavanagudi)..."
+                  className="w-full pl-10 pr-4 py-3 bg-slate-950 text-white font-medium text-xs rounded-2xl border border-slate-800 focus:border-amber-500 focus:outline-none"
+                />
+                {isSearching && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-amber-400 animate-spin">⏳</span>}
+              </div>
 
-        </div>
-
-        {/* Right Column: Interactive Map Pinning (5 cols) */}
-        <div className="lg:col-span-5 space-y-6 flex flex-col">
-          <div className="bg-slate-900/90 rounded-3xl p-5 border border-slate-800 shadow-2xl flex-1 flex flex-col space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="font-bold text-base text-white flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-amber-400" />
-                3. Interactive Map Pinning
-              </h2>
-              <span className="text-xs text-emerald-400 font-extrabold">Click map or drag pin</span>
+              {/* Suggestions dropdown */}
+              {suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 z-40 bg-slate-900 border border-slate-700 rounded-2xl mt-1 shadow-2xl overflow-hidden max-h-56 overflow-y-auto">
+                  {suggestions.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => selectSuggestion(item)}
+                      className="w-full text-left p-3 hover:bg-slate-800 text-xs text-slate-200 border-b border-slate-800/60 transition flex items-center gap-2"
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span className="truncate">{item.display_name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="w-full h-96 rounded-2xl overflow-hidden relative border border-slate-800 shadow-inner">
+            {/* Quick Area Chips */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                Quick Bengaluru Area Presets:
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {Object.entries(LOCALITY_COORDINATES).map(([locName, locCoords]) => (
+                  <button
+                    key={locName}
+                    onClick={() => selectLocalityPreset(locName, locCoords)}
+                    className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition ${
+                      localityName === locName
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md'
+                        : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
+                    }`}
+                  >
+                    📍 {locName}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Interactive Map Picker */}
+            <div className="w-full h-80 rounded-2xl overflow-hidden relative border border-slate-800 shadow-inner">
               <MapView
                 pandals={pandals}
                 selectedPandal={null}
@@ -567,76 +464,96 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
                 onMapClick={handleMapPinSet}
               />
             </div>
-            
-            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center space-y-1">
-              <p className="text-xs text-amber-400 font-extrabold">
-                🎯 Click anywhere on the map above to move the pin instantly!
-              </p>
-              <p className="text-[11px] text-slate-400 font-medium">
-                The street name and coordinates will automatically update to your clicked location.
-              </p>
+
+            {/* Default Street Pandal Name */}
+            <div className="space-y-1.5 pt-2">
+              <label className="block text-xs font-extrabold text-slate-300 uppercase tracking-wider">
+                Pandal Name (Auto-set as Street Name)
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={streetName}
+                  onChange={(e) => setStreetName(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-950 text-white font-extrabold text-sm rounded-2xl border border-amber-500/50 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded-full">
+                  Auto Street
+                </span>
+              </div>
             </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handlePublishPandal}
+              disabled={!photo}
+              className={`w-full py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 shadow-2xl transition mt-4 ${
+                photo
+                  ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 shadow-amber-500/30 cursor-pointer'
+                  : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+              }`}
+            >
+              <Plus className="w-5 h-5" />
+              Publish & Pin Pandal on Map
+            </button>
           </div>
+
         </div>
 
-      </div>
-
-      {/* Admin Rights: Manage & Edit Pandals Section */}
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-4 mb-10">
-        <div className="bg-slate-900 rounded-3xl p-5 border border-slate-800 shadow-2xl space-y-4">
+        {/* Admin Rights: Manage Pandals */}
+        <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 shadow-2xl space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h2 className="font-serif font-extrabold text-lg text-white flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-amber-400" />
-                Admin Rights: Manage & Edit Pandal Pins
+                Admin Rights: Edit Pandal Pins
               </h2>
               <p className="text-xs text-slate-400 font-medium mt-0.5">
-                Admin can modify street names, update photos, edit exact coordinates & manage pins
+                Modify street names, update photos, edit exact coordinates & manage pins
               </p>
             </div>
-            <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/30">
+            <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-3.5 py-1.5 rounded-full border border-amber-500/30">
               {pandals.length} Total Pandals
             </span>
           </div>
 
-          {/* Pandals Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-3">
             {pandals.map((pandal) => {
               const isAdminAdded = pandal.id.startsWith('pandal-admin-');
               return (
                 <div
                   key={pandal.id}
-                  className={`bg-slate-950 p-4 rounded-2xl border transition space-y-3 ${
-                    isAdminAdded ? 'border-amber-500/50 ring-1 ring-amber-500/30' : 'border-slate-800 hover:border-slate-700'
+                  className={`bg-slate-950 p-4 rounded-2xl border transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+                    isAdminAdded ? 'border-amber-500/50' : 'border-slate-800'
                   }`}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-3">
                     <img
                       src={pandal.coverImage}
                       alt={pandal.name}
-                      className="w-16 h-16 rounded-xl object-cover border border-slate-800 bg-slate-900 shrink-0"
+                      className="w-14 h-14 rounded-xl object-cover border border-slate-800 bg-slate-900 shrink-0"
                     />
-                    <div className="flex-1 min-w-0">
+                    <div>
                       {isAdminAdded && (
-                        <span className="bg-amber-500/20 text-amber-400 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-500/30 uppercase tracking-wider mb-1 inline-block">
+                        <span className="bg-amber-500/20 text-amber-400 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 inline-block">
                           Admin Added
                         </span>
                       )}
-                      <h4 className="font-bold text-white text-xs leading-snug truncate">{pandal.name}</h4>
-                      <p className="text-[11px] text-slate-400 truncate">{pandal.locality} • {pandal.address}</p>
+                      <h4 className="font-bold text-white text-xs leading-snug">{pandal.name}</h4>
+                      <p className="text-[11px] text-slate-400">{pandal.locality} • {pandal.address}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-xs">
+                  <div className="flex items-center gap-2 self-end sm:self-center">
                     <button
                       onClick={() => setEditingPandal(pandal)}
-                      className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-extrabold rounded-xl border border-amber-500/30 flex items-center gap-1.5 transition"
+                      className="px-3.5 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-extrabold rounded-xl border border-amber-500/30 flex items-center gap-1.5 text-xs transition"
                     >
                       <Edit3 className="w-3.5 h-3.5" /> Edit Details
                     </button>
                     <button
                       onClick={() => onDeletePandal(pandal.id)}
-                      className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-xl transition"
+                      className="p-2 text-red-400 hover:bg-red-500/20 rounded-xl transition"
                       title="Delete Pandal"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -647,6 +564,7 @@ export default function AdminRoutePage({ pandals, onAddPandal, onUpdatePandal, o
             })}
           </div>
         </div>
+
       </div>
 
       {/* Edit Pandal Modal */}
