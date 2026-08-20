@@ -5,10 +5,27 @@ import PandalDetailSheet from './components/PandalDetailSheet';
 import AddPandalModal from './components/AddPandalModal';
 import AdminDrawer from './components/AdminDrawer';
 import EventsModal from './components/EventsModal';
+import AdminRoutePage from './components/AdminRoutePage';
 import { initialPandals, LOCALITY_COORDINATES, BENGALURU_CENTER } from './data/pandalsData';
 import { Bookmark, Sparkles, Navigation, Info, MapPin, Move, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
+  // Simple Client-Side Router for /admin
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (path) => {
+    window.history.pushState({}, '', path);
+    setCurrentPath(path);
+  };
+
   // Persistence with LocalStorage
   const [pandals, setPandals] = useState(() => {
     const saved = localStorage.getItem('ganapathimap_pandals');
@@ -132,6 +149,20 @@ export default function App() {
     setSelectedPandal(newPandal);
   };
 
+  const handleUpdatePandal = (updatedPandal) => {
+    setPandals((prev) => prev.map((p) => (p.id === updatedPandal.id ? updatedPandal : p)));
+    if (selectedPandal && selectedPandal.id === updatedPandal.id) {
+      setSelectedPandal(updatedPandal);
+    }
+  };
+
+  const handleDeletePandal = (pandalId) => {
+    setPandals((prev) => prev.filter((p) => p.id !== pandalId));
+    if (selectedPandal && selectedPandal.id === pandalId) {
+      setSelectedPandal(null);
+    }
+  };
+
   const handleApprovePandal = (pandalId) => {
     setPandals((prev) =>
       prev.map((p) => (p.id === pandalId ? { ...p, status: 'verified' } : p))
@@ -153,6 +184,24 @@ export default function App() {
 
   const verifiedCount = pandals.filter((p) => p.status === 'verified').length;
 
+  // ROUTE: /admin
+  if (currentPath === '/admin') {
+    return (
+      <AdminRoutePage
+        pandals={pandals}
+        onAddPandal={handleAddPandal}
+        onUpdatePandal={handleUpdatePandal}
+        onDeletePandal={handleDeletePandal}
+        onBackToMap={() => navigateTo('/')}
+        onSelectPandalOnMap={(pandal) => {
+          setSelectedPandal(pandal);
+          navigateTo('/');
+        }}
+      />
+    );
+  }
+
+  // DEFAULT MAIN MAP ROUTE: /
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col bg-slate-950 font-sans antialiased relative">
       
@@ -176,6 +225,7 @@ export default function App() {
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onOpenAdminDrawer={() => setIsAdminDrawerOpen(true)}
         onOpenEventsModal={() => setIsEventsModalOpen(true)}
+        onNavigateToAdmin={() => navigateTo('/admin')}
         totalPandalsCount={pandals.length}
         verifiedCount={verifiedCount}
       />

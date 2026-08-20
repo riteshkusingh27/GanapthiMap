@@ -14,11 +14,12 @@ export default function HeaderSearch({
   onOpenAddModal,
   onOpenAdminDrawer,
   onOpenEventsModal,
+  onNavigateToAdmin,
   totalPandalsCount,
   verifiedCount
 }) {
   return (
-    <header className="absolute top-3 left-3 right-3 sm:top-5 sm:left-5 sm:right-5 z-20 pointer-events-none flex flex-col gap-2.5 max-w-4xl mx-auto">
+    <header className="absolute top-3 left-3 right-3 sm:top-5 sm:left-5 sm:right-5 z-20 pointer-events-none flex flex-col gap-2.5 max-w-4xl mx-auto font-sans">
       
       {/* Main Glass Floating Header Card */}
       <div className="pointer-events-auto bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-200/70 p-2.5 sm:p-3 flex flex-col sm:flex-row items-center justify-between gap-3 transition-all duration-300">
@@ -46,6 +47,13 @@ export default function HeaderSearch({
 
           {/* Quick Mobile Action Buttons */}
           <div className="flex sm:hidden items-center gap-2">
+            <button
+              onClick={() => onNavigateToAdmin && onNavigateToAdmin()}
+              className="px-2.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-extrabold text-[11px] flex items-center gap-1 shadow-md"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              /admin
+            </button>
             <button
               onClick={onLocateMe}
               title="Near Me"
@@ -110,11 +118,19 @@ export default function HeaderSearch({
           </button>
 
           <button
+            onClick={() => onNavigateToAdmin && onNavigateToAdmin()}
+            className="px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-md transition"
+          >
+            <ShieldAlert className="w-4 h-4 text-slate-950" />
+            /admin
+          </button>
+
+          <button
             onClick={onOpenAdminDrawer}
             title="Admin Moderation Console"
             className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200/60"
           >
-            <ShieldAlert className="w-4 h-4 text-slate-700" />
+            <ShieldCheck className="w-4 h-4 text-slate-700" />
           </button>
         </div>
       </div>
