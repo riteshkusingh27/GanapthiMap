@@ -1,50 +1,40 @@
 import React from 'react';
 import { Plus, Minus, Navigation, Moon, Sun } from 'lucide-react';
 
-export default function MapControls({
-  onZoomIn,
-  onZoomOut,
-  onLocateMe,
-  mapStyle,
-  onToggleMapStyle
-}) {
+export default function MapControls({ onZoomIn, onZoomOut, onLocateMe, mapStyle, onToggleMapStyle }) {
   return (
-    <div className="fixed right-4 bottom-6 z-20 flex flex-col gap-2 pointer-events-auto font-sans">
-      
-      {/* Zoom In & Zoom Out Stack */}
-      <div className="bg-white border border-slate-200/90 rounded-xl shadow-md overflow-hidden flex flex-col">
+    <div className="fixed right-4 bottom-24 z-20 flex flex-col gap-1.5 pointer-events-auto font-sans">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden flex flex-col">
         <button
           onClick={onZoomIn}
-          className="p-2.5 text-slate-700 hover:bg-slate-50 transition border-b border-slate-100 flex items-center justify-center cursor-pointer"
+          className="p-2.5 text-gray-600 hover:bg-gray-50 transition border-b border-gray-100 flex items-center justify-center cursor-pointer"
           title="Zoom In"
         >
           <Plus className="w-4 h-4" />
         </button>
         <button
           onClick={onZoomOut}
-          className="p-2.5 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center cursor-pointer"
+          className="p-2.5 text-gray-600 hover:bg-gray-50 transition flex items-center justify-center cursor-pointer"
           title="Zoom Out"
         >
           <Minus className="w-4 h-4" />
         </button>
       </div>
 
-      {/* GPS Location Button */}
       <button
         onClick={onLocateMe}
-        className="p-2.5 bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 rounded-xl shadow-md flex items-center justify-center transition cursor-pointer"
-        title="Locate My Position"
+        className="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl shadow-lg flex items-center justify-center transition cursor-pointer"
+        title="My Location"
       >
-        <Navigation className="w-4 h-4 fill-slate-700 text-slate-700" />
+        <Navigation className="w-4 h-4 text-[#8B1A1A]" />
       </button>
 
-      {/* Map Style Toggle Button */}
       <button
         onClick={onToggleMapStyle}
-        className="p-2.5 bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 rounded-xl shadow-md flex items-center justify-center transition cursor-pointer"
-        title={mapStyle === 'dark' ? "Switch to Light Map" : "Switch to Dark Map"}
+        className="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl shadow-lg flex items-center justify-center transition cursor-pointer"
+        title={mapStyle === 'dark' ? 'Light Map' : 'Dark Map'}
       >
-        {mapStyle === 'dark' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-slate-700" />}
+        {mapStyle === 'dark' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-gray-500" />}
       </button>
     </div>
   );
