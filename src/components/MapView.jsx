@@ -13,55 +13,77 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom SVG Ganesha Marker Generators
+// Custom SVG & Photo Pandal Marker Generator
 const createCustomMarkerIcon = (pandal, isSelected) => {
-  let bgColor = '#D97706'; // Amber default
+  let borderColor = '#D97706'; // Amber default
   let badgeIcon = '🪔';
-  let ringColor = 'border-amber-300';
+  let badgeBgColor = '#D97706';
   let glowColor = 'rgba(217, 119, 6, 0.4)';
 
   if (pandal.status === 'pending') {
-    bgColor = '#6B7280';
+    borderColor = '#6B7280';
     badgeIcon = '⏳';
-    ringColor = 'border-slate-300';
+    badgeBgColor = '#4B5563';
     glowColor = 'rgba(107, 114, 128, 0.3)';
   } else if (pandal.isEcoFriendly) {
-    bgColor = '#059669';
+    borderColor = '#059669';
     badgeIcon = '🌿';
-    ringColor = 'border-emerald-300';
+    badgeBgColor = '#059669';
     glowColor = 'rgba(5, 150, 105, 0.4)';
   } else if (pandal.isFeatured) {
-    bgColor = '#D97706';
+    borderColor = '#D97706';
     badgeIcon = '👑';
-    ringColor = 'border-yellow-200';
+    badgeBgColor = '#D97706';
     glowColor = 'rgba(217, 119, 6, 0.6)';
   } else if (pandal.isTrending) {
-    bgColor = '#DC2626';
+    borderColor = '#DC2626';
     badgeIcon = '🔥';
-    ringColor = 'border-red-300';
+    badgeBgColor = '#DC2626';
     glowColor = 'rgba(220, 38, 38, 0.4)';
   }
 
-  const selectedClass = isSelected ? 'scale-125 z-50 ring-4 ring-offset-2 ring-amber-500 shadow-2xl' : 'hover:scale-110';
+  const selectedClass = isSelected ? 'scale-125 z-50 ring-4 ring-amber-500 shadow-2xl' : 'hover:scale-110';
+  const photoUrl = pandal.coverImage || (pandal.images && pandal.images[0]) || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&w=300&q=80';
 
   const html = `
-    <div class="relative flex items-center justify-center cursor-pointer transition-all duration-300 ${selectedClass}">
-      ${pandal.isFeatured ? `<div class="absolute -inset-1.5 rounded-full bg-amber-400 opacity-60 animate-ping"></div>` : ''}
-      <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center text-white shadow-2xl border-2 ${ringColor}" style="background-color: ${bgColor}; box-shadow: 0 10px 20px -5px ${glowColor};">
-        <span class="text-xl font-bold leading-none select-none">${badgeIcon}</span>
+    <div class="relative flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${selectedClass}" style="width: 44px; height: 50px;">
+      ${pandal.isFeatured ? `<div class="absolute -inset-1 rounded-full bg-amber-400 opacity-50 animate-ping"></div>` : ''}
+      
+      <!-- Photo Badge Circle -->
+      <div class="relative z-10 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center" style="width: 40px; height: 40px; border: 2.5px solid ${borderColor}; box-shadow: 0 6px 14px -3px ${glowColor};">
+        <img src="${photoUrl}" alt="${pandal.name}" style="width: 100%; height: 100%; object-fit: cover;" />
+        
+        <!-- Corner Category Badge -->
+        <div class="absolute -bottom-0.5 -right-0.5 text-white rounded-full flex items-center justify-center select-none" style="width: 16px; height: 16px; font-size: 8px; background-color: ${badgeBgColor}; border: 1.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+          ${badgeIcon}
+        </div>
       </div>
-      <div class="absolute -bottom-1.5 z-0 w-3.5 h-3.5 rotate-45" style="background-color: ${bgColor};"></div>
+      
+      <!-- Teardrop Arrow -->
+      <div class="z-0 shadow-sm" style="width: 10px; height: 10px; margin-top: -5px; transform: rotate(45deg); background-color: #ffffff; border-right: 2px solid ${borderColor}; border-bottom: 2px solid ${borderColor};"></div>
     </div>
   `;
 
   return L.divIcon({
     html: html,
-    className: 'custom-pandal-marker-div',
-    iconSize: [44, 48],
-    iconAnchor: [22, 48],
-    popupAnchor: [0, -42]
+    className: 'custom-photo-pandal-marker',
+    iconSize: [44, 50],
+    iconAnchor: [22, 50],
+    popupAnchor: [0, -48]
   });
 };
+
+// Component to handle map clicks
+function MapEventsHandler({ onMapClick }) {
+  useMapEvents({
+    click(e) {
+      if (onMapClick) {
+        onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
+      }
+    }
+  });
+  return null;
+}
 
 // Component to handle map sizing, window resizes, and pan to selected pandal
 function MapController({ selectedPandal, userLocation }) {
@@ -94,14 +116,14 @@ function MapController({ selectedPandal, userLocation }) {
 
   useEffect(() => {
     if (userLocation) {
-      map.flyTo([userLocation.lat, userLocation.lng], 14, { duration: 1.2 });
+      map.flyTo([userLocation.lat, userLocation.lng], 15, { duration: 1.2 });
     }
   }, [userLocation, map]);
 
   return null;
 }
 
-export default function MapView({ pandals, selectedPandal, onSelectPandal, userLocation, onUserLocationDrag }) {
+export default function MapView({ pandals, selectedPandal, onSelectPandal, userLocation, onUserLocationDrag, onMapClick }) {
   return (
     <div className="w-full h-full absolute inset-0 z-0">
       <MapContainer
@@ -118,6 +140,7 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
         />
 
         <MapController selectedPandal={selectedPandal} userLocation={userLocation} />
+        <MapEventsHandler onMapClick={onMapClick} />
 
         {/* User GPS Location Marker with Drag Capability */}
         {userLocation && (
@@ -176,29 +199,29 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
               }}
             >
               <Popup className="custom-leaflet-popup">
-                <div className="p-1 min-w-[210px] max-w-[250px] font-sans">
-                  <div className="relative h-28 w-full rounded-xl overflow-hidden mb-2 bg-slate-100 shadow-inner">
+                <div className="p-1.5 min-w-[220px] max-w-[260px] font-sans">
+                  <div className="relative h-32 w-full rounded-xl overflow-hidden mb-2.5 bg-slate-900 shadow-inner">
                     <img
                       src={pandal.coverImage}
                       alt={pandal.name}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-1.5 left-1.5 bg-slate-900/80 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1 border border-white/20">
+                    <div className="absolute top-2 left-2 bg-slate-950/85 backdrop-blur-md text-amber-300 text-[10px] px-2.5 py-1 rounded-full font-extrabold flex items-center gap-1 border border-amber-500/30">
                       {pandal.isEcoFriendly ? <Leaf className="w-3 h-3 text-emerald-400" /> : <Sparkles className="w-3 h-3 text-amber-400" />}
                       {pandal.locality}
                     </div>
                   </div>
 
-                  <h4 className="font-extrabold text-slate-900 text-sm leading-tight mb-1">{pandal.name}</h4>
-                  <p className="text-xs text-slate-500 font-medium line-clamp-1 mb-2.5">{pandal.address}</p>
+                  <h4 className="font-extrabold text-white text-sm leading-tight mb-1">{pandal.name}</h4>
+                  <p className="text-[11px] text-slate-300 font-medium line-clamp-1 mb-3">{pandal.address}</p>
                   
-                  <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-2">
-                    <div className="text-[11px] font-bold text-amber-700 flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-amber-600" /> {pandal.darshanTimings?.split('-')[0]}
+                  <div className="flex items-center justify-between gap-2 border-t border-slate-800/80 pt-2.5">
+                    <div className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-400" /> {pandal.darshanTimings?.split('-')[0] || 'Open'}
                     </div>
                     <button
                       onClick={() => onSelectPandal(pandal)}
-                      className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-md shadow-amber-600/20"
+                      className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-black px-3.5 py-1.5 rounded-xl transition shadow-md shadow-amber-500/25"
                     >
                       View Details
                     </button>

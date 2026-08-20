@@ -49,13 +49,13 @@ export default function PandalDetailSheet({
   };
 
   const crowdColors = {
-    Low: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-    Moderate: 'bg-amber-100 text-amber-900 border-amber-300',
-    Heavy: 'bg-red-100 text-red-900 border-red-300'
+    Low: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40',
+    Moderate: 'bg-amber-500/20 text-amber-400 border-amber-500/40',
+    Heavy: 'bg-red-500/20 text-red-400 border-red-500/40'
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-30 w-full sm:w-[460px] bg-white shadow-2xl flex flex-col border-l border-slate-200/80 transition-transform duration-300 ease-in-out font-sans">
+    <div className="fixed inset-y-0 right-0 z-30 w-full sm:w-[460px] bg-slate-950 text-white shadow-2xl flex flex-col border-l border-amber-500/30 transition-transform duration-300 ease-in-out font-sans">
       
       {/* Top Image Banner */}
       <div className="relative h-72 w-full bg-slate-950 shrink-0">
@@ -64,13 +64,13 @@ export default function PandalDetailSheet({
           alt={pandal.name}
           className="w-full h-full object-cover opacity-90 transition-opacity duration-300"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-black/30" />
 
         {/* Top Controls */}
         <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10">
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-black/50 hover:bg-black text-white backdrop-blur-md flex items-center justify-center transition border border-white/20"
+            className="w-9 h-9 rounded-full bg-slate-950/70 hover:bg-slate-900 text-white backdrop-blur-md flex items-center justify-center transition border border-white/20"
           >
             <X className="w-5 h-5" />
           </button>
@@ -78,14 +78,14 @@ export default function PandalDetailSheet({
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="w-9 h-9 rounded-full bg-black/50 hover:bg-black text-white backdrop-blur-md flex items-center justify-center transition border border-white/20"
+              className="w-9 h-9 rounded-full bg-slate-950/70 hover:bg-slate-900 text-white backdrop-blur-md flex items-center justify-center transition border border-white/20"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="w-4 h-4 text-amber-400" />
             </button>
             <button
               onClick={() => onToggleSave(pandal.id)}
               className={`w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition border border-white/20 ${
-                isSaved ? 'bg-amber-500 text-white' : 'bg-black/50 hover:bg-black text-white'
+                isSaved ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-950/70 hover:bg-slate-900 text-white'
               }`}
             >
               <Bookmark className="w-4 h-4 fill-current" />
@@ -114,11 +114,11 @@ export default function PandalDetailSheet({
               </span>
             )}
             {pandal.isFeatured && (
-              <span className="bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-amber-300/40">
+              <span className="bg-amber-500/90 backdrop-blur-md text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-amber-300/40">
                 <Sparkles className="w-3 h-3" /> Featured
               </span>
             )}
-            <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20">
+            <span className="bg-slate-900/80 backdrop-blur-md text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30">
               📍 {pandal.locality}
             </span>
           </div>
@@ -151,23 +151,23 @@ export default function PandalDetailSheet({
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-slate-200/80 bg-slate-50">
+      <div className="flex border-b border-slate-800 bg-slate-900/90">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-3 text-xs font-bold text-center border-b-2 transition ${
+          className={`flex-1 py-3 text-xs font-extrabold text-center border-b-2 transition ${
             activeTab === 'overview'
-              ? 'border-amber-600 text-amber-700 bg-white'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-amber-500 text-amber-400 bg-slate-950'
+              : 'border-transparent text-slate-400 hover:text-white'
           }`}
         >
           Overview & Visitor Info
         </button>
         <button
           onClick={() => setActiveTab('events')}
-          className={`flex-1 py-3 text-xs font-bold text-center border-b-2 transition ${
+          className={`flex-1 py-3 text-xs font-extrabold text-center border-b-2 transition ${
             activeTab === 'events'
-              ? 'border-amber-600 text-amber-700 bg-white'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-amber-500 text-amber-400 bg-slate-950'
+              : 'border-transparent text-slate-400 hover:text-white'
           }`}
         >
           Aarti & Events ({pandal.events?.length || 0})
@@ -184,20 +184,20 @@ export default function PandalDetailSheet({
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 hover:to-orange-700 text-white font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-amber-600/25 transition"
+                className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-3 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-amber-500/25 transition"
               >
-                <Navigation className="w-4 h-4 fill-current" />
+                <Navigation className="w-4 h-4 fill-slate-950" />
                 Get Directions
               </a>
 
-              <div className="bg-slate-100/90 p-2.5 rounded-xl flex items-center justify-between border border-slate-200">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                  <Users className="w-4 h-4 text-slate-500" />
+              <div className="bg-slate-900/90 p-2.5 rounded-2xl flex items-center justify-between border border-slate-800">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                  <Users className="w-4 h-4 text-amber-400" />
                   Crowd:
                 </div>
                 <span
                   className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border ${
-                    crowdColors[pandal.crowdLevel] || 'bg-slate-200 text-slate-700'
+                    crowdColors[pandal.crowdLevel] || 'bg-slate-800 text-slate-300 border-slate-700'
                   }`}
                 >
                   {pandal.crowdLevel || 'Normal'}
@@ -206,48 +206,48 @@ export default function PandalDetailSheet({
             </div>
 
             {/* Address */}
-            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-1">
+            <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 space-y-1">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900">Physical Address</h4>
-                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed font-medium">{pandal.address}</p>
+                  <h4 className="text-xs font-extrabold text-amber-300 uppercase tracking-wider">Physical Address</h4>
+                  <p className="text-xs text-slate-300 mt-0.5 leading-relaxed font-medium">{pandal.address}</p>
                 </div>
               </div>
             </div>
 
             {/* Timings */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/80">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950 mb-1">
-                  <Clock className="w-3.5 h-3.5 text-amber-600" />
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-amber-500/30">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 mb-1">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" />
                   Darshan Hours
                 </div>
-                <p className="text-xs font-extrabold text-amber-800">{pandal.darshanTimings || '06:00 AM - 10:00 PM'}</p>
+                <p className="text-xs font-extrabold text-white">{pandal.darshanTimings || '06:00 AM - 10:00 PM'}</p>
               </div>
 
-              <div className="bg-orange-50/70 p-3.5 rounded-2xl border border-orange-200/80">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-orange-950 mb-1">
-                  <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-orange-500/30">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-orange-400 mb-1">
+                  <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                   Aarti Schedule
                 </div>
-                <p className="text-xs font-extrabold text-orange-800">{pandal.aartiTimings || '07:30 AM & 08:00 PM'}</p>
+                <p className="text-xs font-extrabold text-white">{pandal.aartiTimings || '07:30 AM & 08:00 PM'}</p>
               </div>
             </div>
 
             {/* Annadanam Prasad */}
             {pandal.annadanam?.available && (
-              <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 p-4 rounded-2xl border border-amber-300/80">
+              <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 p-4 rounded-2xl border border-amber-500/40">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="p-1.5 rounded-xl bg-orange-600 text-white shadow-sm">
                     <Utensils className="w-4 h-4" />
                   </span>
                   <div>
-                    <h4 className="text-xs font-extrabold text-slate-900">Maha Prasad & Annadanam Seva</h4>
-                    <p className="text-[11px] font-bold text-orange-700">{pandal.annadanam.timings}</p>
+                    <h4 className="text-xs font-extrabold text-white">Maha Prasad & Annadanam Seva</h4>
+                    <p className="text-[11px] font-bold text-amber-400">{pandal.annadanam.timings}</p>
                   </div>
                 </div>
-                <p className="text-xs text-slate-700 mt-1.5 leading-relaxed pl-8 font-medium">
+                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed pl-8 font-medium">
                   {pandal.annadanam.description}
                 </p>
               </div>
@@ -255,17 +255,17 @@ export default function PandalDetailSheet({
 
             {/* About */}
             <div>
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-400 mb-2">
                 About this Festival Pandal
               </h4>
-              <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 font-medium">
+              <p className="text-xs text-slate-300 leading-relaxed bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 font-medium">
                 {pandal.description}
               </p>
             </div>
 
             {/* Visitor Facilities */}
             <div>
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-400 mb-2">
                 Visitor Facilities
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -289,7 +289,7 @@ export default function PandalDetailSheet({
                     className={`flex-1 py-2 text-xs font-bold rounded-xl border transition ${
                       pandal.crowdLevel === level
                         ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md font-extrabold'
-                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                        : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
                     }`}
                   >
                     {level}
@@ -299,13 +299,13 @@ export default function PandalDetailSheet({
             </div>
 
             {/* Organizer Claim */}
-            <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
-              <div className="text-slate-500">
-                Organized by: <span className="font-bold text-slate-800">{pandal.organizer?.name || 'Community Pandal'}</span>
+            <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+              <div className="text-slate-400">
+                Organized by: <span className="font-bold text-amber-400">{pandal.organizer?.name || 'Community Pandal'}</span>
               </div>
               <button
                 onClick={() => onOpenClaimModal(pandal)}
-                className="text-amber-700 font-bold hover:underline flex items-center gap-1"
+                className="text-amber-400 font-bold hover:underline flex items-center gap-1"
               >
                 Claim Listing <ChevronRight className="w-3 h-3" />
               </button>
@@ -315,25 +315,25 @@ export default function PandalDetailSheet({
 
         {activeTab === 'events' && (
           <div className="space-y-3">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-400">
               Scheduled Cultural Events & Puja
             </h4>
             {pandal.events && pandal.events.length > 0 ? (
               <div className="space-y-2.5">
                 {pandal.events.map((ev, idx) => (
-                  <div key={idx} className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200/80 flex items-start gap-3">
-                    <span className="bg-amber-600 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-lg shrink-0 shadow-sm">
+                  <div key={idx} className="p-3.5 bg-slate-900/90 rounded-2xl border border-amber-500/30 flex items-start gap-3">
+                    <span className="bg-amber-500 text-slate-950 text-[11px] font-extrabold px-2.5 py-1 rounded-lg shrink-0 shadow-sm">
                       {ev.time}
                     </span>
                     <div>
-                      <h5 className="text-xs font-bold text-slate-900">{ev.title}</h5>
-                      <p className="text-[11px] text-slate-500 mt-0.5">Daily recurring festival program</p>
+                      <h5 className="text-xs font-bold text-white">{ev.title}</h5>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Daily recurring festival program</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-500 italic p-6 text-center bg-slate-50 rounded-2xl border">
+              <p className="text-xs text-slate-400 italic p-6 text-center bg-slate-900/60 rounded-2xl border border-slate-800">
                 No specific cultural event schedule published yet for this location.
               </p>
             )}
@@ -349,11 +349,11 @@ function FacilityItem({ icon, label, available }) {
     <div
       className={`p-2.5 rounded-xl border text-[11px] font-bold flex items-center gap-1.5 transition ${
         available
-          ? 'bg-emerald-50/80 text-emerald-900 border-emerald-200/80'
-          : 'bg-slate-50 text-slate-400 border-slate-200 opacity-50 line-through'
+          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+          : 'bg-slate-900 text-slate-500 border-slate-800 opacity-50 line-through'
       }`}
     >
-      <span className={available ? 'text-emerald-600' : 'text-slate-400'}>{icon}</span>
+      <span className={available ? 'text-emerald-400' : 'text-slate-500'}>{icon}</span>
       {label}
     </div>
   );
