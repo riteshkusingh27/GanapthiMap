@@ -32,13 +32,15 @@ export default function PandalDetailSheet({
   onUpdateCrowd,
   isSaved,
   onToggleSave,
-  onOpenClaimModal
+  onOpenClaimModal,
+  onShowDirections
 }) {
   if (!pandal) return null;
 
   const [activeTab, setActiveTab] = useState('overview');
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [copiedToast, setCopiedToast] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${pandal.latitude},${pandal.longitude}`;
 
@@ -47,6 +49,8 @@ export default function PandalDetailSheet({
     setCopiedToast(true);
     setTimeout(() => setCopiedToast(false), 2000);
   };
+
+  const currentImg = pandal.images?.[activeImageIndex] || pandal.coverImage;
 
   const crowdColors = {
     Low: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40',
@@ -57,10 +61,26 @@ export default function PandalDetailSheet({
   return (
     <div className="fixed inset-y-0 right-0 z-30 w-full sm:w-[460px] bg-slate-950 text-white shadow-2xl flex flex-col border-l border-amber-500/30 transition-transform duration-300 ease-in-out font-sans">
       
+      {/* Full-Screen Lightbox Modal */}
+      {isLightboxOpen && (
+        <div
+          onClick={() => setIsLightboxOpen(false)}
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 cursor-zoom-out"
+        >
+          <button
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute top-4 right-4 text-white bg-slate-800 p-2 rounded-full hover:bg-slate-700"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img src={currentImg} alt={pandal.name} className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl" />
+        </div>
+      )}
+
       {/* Top Image Banner */}
-      <div className="relative h-72 w-full bg-slate-950 shrink-0">
+      <div className="relative h-72 w-full bg-slate-950 shrink-0 cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
         <img
-          src={pandal.images?.[activeImageIndex] || pandal.coverImage}
+          src={currentImg}
           alt={pandal.name}
           className="w-full h-full object-cover opacity-90 transition-opacity duration-300"
         />
@@ -118,8 +138,8 @@ export default function PandalDetailSheet({
                 <Sparkles className="w-3 h-3" /> Featured
               </span>
             )}
-            <span className="bg-slate-900/80 backdrop-blur-md text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30">
-              📍 {pandal.locality}
+            <span className="bg-slate-900/80 backdrop-blur-md text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-amber-400" /> {pandal.locality}
             </span>
           </div>
 
@@ -180,15 +200,20 @@ export default function PandalDetailSheet({
           <>
             {/* Quick Action Navigation Bar */}
             <div className="grid grid-cols-2 gap-2.5">
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-3 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-amber-500/25 transition"
+              <button
+                onClick={() => {
+                  if (onShowDirections) {
+                    onShowDirections(pandal);
+                    onClose();
+                  } else {
+                    window.open(googleMapsUrl, '_blank');
+                  }
+                }}
+                className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-3 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-amber-500/25 transition cursor-pointer"
               >
                 <Navigation className="w-4 h-4 fill-slate-950" />
-                Get Directions
-              </a>
+                Show Directions
+              </button>
 
               <div className="bg-slate-900/90 p-2.5 rounded-2xl flex items-center justify-between border border-slate-800">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">

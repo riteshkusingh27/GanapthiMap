@@ -8,16 +8,11 @@ export default function LiveStatusBar({ pandals }) {
 
   return (
     <>
-      {/* Live Badge — top right */}
-      <div className="fixed top-4 right-4 z-20 pointer-events-auto hidden sm:flex items-center gap-1.5 bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full shadow-sm text-[11px] font-medium font-sans">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        <span className="font-semibold text-gray-800">{verifiedCount}</span> Pandals Live
-      </div>
 
       {/* Footer bar */}
       <div className="fixed bottom-0 inset-x-0 z-20 bg-white border-t border-gray-200 px-4 py-2 font-sans flex items-center justify-between gap-4 shadow-sm">
         <span className="text-[11px] font-semibold text-[#8B1A1A] tracking-tight whitespace-nowrap">
-          🪔 Bengaluru Ganesh Utsav 2026
+          Bengaluru Ganesh Utsav 2026
         </span>
 
         <div className="hidden md:flex items-center gap-4 text-[11px] text-gray-500">

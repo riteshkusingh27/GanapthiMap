@@ -1,5 +1,4 @@
-import React from 'react';
-import { Navigation, Calendar, ShieldAlert, ShieldCheck, Menu } from 'lucide-react';
+import { Navigation, Calendar, Plus } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 
 export default function HeaderSearch({
@@ -34,8 +33,15 @@ export default function HeaderSearch({
           className="flex items-center gap-1.5 px-3 py-1.5 bg-[#8B1A1A] hover:bg-[#6f1515] text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
         >
           <Navigation className="w-3 h-3" />
-          <span className="hidden sm:inline">Near Me</span>
-          <span className="sm:hidden">📍</span>
+          <span>Near Me</span>
+        </button>
+
+        <button
+          onClick={() => onNavigateToAdmin && onNavigateToAdmin()}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+        >
+          <Plus className="w-3 h-3" />
+          <span>Add Pandal</span>
         </button>
 
         <button
@@ -44,22 +50,6 @@ export default function HeaderSearch({
         >
           <Calendar className="w-3 h-3" />
           Events
-        </button>
-
-        <button
-          onClick={() => onNavigateToAdmin && onNavigateToAdmin()}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 text-xs font-medium rounded-lg transition-colors"
-        >
-          <ShieldAlert className="w-3 h-3 text-amber-600" />
-          Admin
-        </button>
-
-        <button
-          onClick={onOpenAdminDrawer}
-          className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors"
-          title="Moderation Panel"
-        >
-          <ShieldCheck className="w-4 h-4" />
         </button>
       </div>
     </header>
