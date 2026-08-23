@@ -34,13 +34,10 @@ export default function App() {
   // Local Storage Persistence
   const [pandals, setPandals] = useState(() => {
     const saved = localStorage.getItem('ganapathimap_pandals');
-    return saved ? JSON.parse(saved) : initialPandals;
+    return saved ? JSON.parse(saved) : [];
   });
 
-  const [savedPandalIds, setSavedPandalIds] = useState(() => {
-    const saved = localStorage.getItem('ganapathimap_saved_ids');
-    return saved ? JSON.parse(saved) : ['pandal-1', 'pandal-2'];
-  });
+  const [savedPandalIds, setSavedPandalIds] = useState([]);
 
   useEffect(() => {
     localStorage.setItem('ganapathimap_pandals', JSON.stringify(pandals));
@@ -281,8 +278,9 @@ export default function App() {
 
   useEffect(() => {
     fetchPandalsFromSupabase().then((data) => {
-      if (data && data.length > 0) {
+      if (Array.isArray(data)) {
         setPandals(data);
+        localStorage.setItem('ganapathimap_pandals', JSON.stringify(data));
       }
     });
   }, []);
