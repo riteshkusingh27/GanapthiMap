@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ganapthimap.rithushritu.workers.dev/sitemap.xml
