@@ -137,35 +137,18 @@ export default function App() {
           lng: position.coords.longitude,
         };
 
-        // Only update if this reading is more accurate than what we have
         if (accuracy < bestAccuracyRef.current) {
           bestAccuracyRef.current = accuracy;
           setUserLocation(coords);
-
-          const nearest = updateNearest(coords);
-          const distText = nearest
-            ? (nearest.dist < 1
-                ? `${Math.round(nearest.dist * 1000)} m`
-                : `${nearest.dist.toFixed(1)} km`)
-            : '';
+          setNearestPandal(null);
 
           if (accuracy <= 50) {
-            // Excellent GPS — stop immediately
             stopGeoWatch();
             clearTimeout(stopTimer);
-            setLocationToast(
-              `Location locked (${accuracy} m accuracy)${
-                nearest && nearest.pandal ? ` · Nearest: ${nearest.pandal.name} ${distText}` : ''
-              }`
-            );
-            setTimeout(() => setLocationToast(''), 5000);
+            setLocationToast(`Location calibrated to your position (${accuracy} m accuracy)`);
+            setTimeout(() => setLocationToast(''), 4000);
           } else {
-            // Good enough to show, keep refining
-            setLocationToast(
-              `Refining location… ${accuracy} m accuracy${
-                nearest && nearest.pandal ? ` · ${nearest.pandal.name} ${distText}` : ''
-              }`
-            );
+            setLocationToast(`Calibrating position… (${accuracy} m accuracy)`);
           }
         }
       },
@@ -451,11 +434,12 @@ export default function App() {
             </div>
           </div>
 
-          {/* Map controls (zoom) — right side */}
-          <div className="absolute bottom-24 right-3 z-20 flex flex-col gap-1 pointer-events-auto">
-            <button onClick={() => mapInstance?.zoomIn()}  className="w-9 h-9 bg-white border border-gray-200 rounded-xl shadow-lg flex items-center justify-center text-gray-700 font-bold active:bg-gray-100">+</button>
-            <button onClick={() => mapInstance?.zoomOut()} className="w-9 h-9 bg-white border border-gray-200 rounded-xl shadow-lg flex items-center justify-center text-gray-700 font-bold active:bg-gray-100">−</button>
-          </div>
+          {/* Map controls (Zoom + Locate) — vertically centered on right side */}
+          <MapControls
+            onZoomIn={() => mapInstance?.zoomIn()}
+            onZoomOut={() => mapInstance?.zoomOut()}
+            onLocateMe={handleLocateMe}
+          />
         </div>
 
         {/* Fixed Floating Bottom CTA Bar (visible when list is closed and no card selected) */}

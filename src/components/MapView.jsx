@@ -202,15 +202,16 @@ const createCustomMarkerIcon = (pandal, isSelected) => {
     badgeBgColor = '#DC2626';
   }
 
-  const selectedClass = isSelected ? 'scale-125 z-50 ring-4 ring-[#7A1C1C] shadow-2xl' : 'hover:scale-110';
+  const selectedClass = isSelected ? 'scale-125 z-50 shadow-2xl' : 'hover:scale-110';
   const photoUrl = pandal.coverImage || (pandal.images && pandal.images[0]) || 'https://pub-1c814e1821a0777ffe4eb60b359a79b5.r2.dev/bengaluru-ganesha-1.jpg';
+  const borderStyle = isSelected ? 'border: 3px solid #3B82F6;' : `border: 2.5px solid ${borderColor};`;
 
   const html = `
     <div class="relative flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${selectedClass}" style="width: 44px; height: 50px;">
       ${pandal.isFeatured ? `<div class="absolute -inset-1 rounded-full bg-amber-400 opacity-40 animate-ping"></div>` : ''}
       
       <!-- Photo Badge Circle -->
-      <div class="relative z-10 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center" style="width: 40px; height: 40px; border: 2.5px solid ${borderColor}; shadow: 0 4px 10px rgba(0,0,0,0.15);">
+      <div class="relative z-10 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center" style="width: 40px; height: 40px; ${borderStyle} shadow: 0 4px 10px rgba(0,0,0,0.15);">
         <img src="${photoUrl}" alt="${pandal.name}" style="width: 100%; height: 100%; object-fit: cover;" />
         
         <!-- Corner Status Dot -->
@@ -318,15 +319,6 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
 
         <MapController selectedPandal={selectedPandal} userLocation={userLocation} setMapInstance={setMapInstance} />
         <MapEventsHandler onMapClick={onMapClick} />
-
-        {/* Direction line to nearest pandal */}
-        {userLocation && nearestPandal && (
-          <DirectionOverlay
-            from={[userLocation.lat, userLocation.lng]}
-            to={[nearestPandal.pandal.latitude, nearestPandal.pandal.longitude]}
-            distKm={nearestPandal.distKm}
-          />
-        )}
 
         {/* User Location Pin */}
         {userLocation && (
