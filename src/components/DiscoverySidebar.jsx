@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Search, Star, X, MapPin, Clock, Leaf, Flame, Sparkles, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Star, X, MapPin, Clock, Leaf, Flame, Sparkles, Users, ShieldCheck } from 'lucide-react';
 
 const CATEGORY_CONFIG = {
   featured: {
@@ -155,6 +155,7 @@ export default function DiscoverySidebar({
   activeFilter,
   onFilterToggle,
   onAddPandalClick,
+  onOpenPrivacyModal,
 }) {
   return (
     <>
@@ -274,8 +275,16 @@ export default function DiscoverySidebar({
                 ))}
 
                 {/* Footer */}
-                <div className="py-4 px-4 text-center">
-                  <p className="text-[10px] text-gray-300 font-medium">Showing all {pandals.length} verified pandals</p>
+                <div className="py-4 px-4 text-center border-t border-gray-100 flex flex-col items-center gap-1.5 bg-gray-50/50">
+                  <p className="text-[10px] text-gray-400 font-medium">Showing all {pandals.length} verified pandals</p>
+                  {onOpenPrivacyModal && (
+                    <button
+                      onClick={onOpenPrivacyModal}
+                      className="text-[10px] text-[#8B1A1A] font-bold hover:underline flex items-center gap-1"
+                    >
+                      <ShieldCheck className="w-3 h-3" /> Privacy & Community Guidelines
+                    </button>
+                  )}
                 </div>
               </div>
             )}

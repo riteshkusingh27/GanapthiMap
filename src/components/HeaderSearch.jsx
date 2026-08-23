@@ -1,4 +1,4 @@
-import { Navigation, Calendar, Plus } from 'lucide-react';
+import { Navigation, Calendar, Plus, ShieldCheck } from 'lucide-react';
 
 const logoImg = 'https://res.cloudinary.com/dtigmagdl/image/upload/v1787463675/927b6a8c-c53d-4267-9960-1ca4c824e8cd_u1drzf.png';
 
@@ -6,6 +6,7 @@ export default function HeaderSearch({
   onLocateMe,
   onOpenAdminDrawer,
   onOpenEventsModal,
+  onOpenPrivacyModal,
   onNavigateToAdmin,
   verifiedCount
 }) {
@@ -46,6 +47,17 @@ export default function HeaderSearch({
           <Calendar className="w-3 h-3" />
           Events
         </button>
+
+        {onOpenPrivacyModal && (
+          <button
+            onClick={onOpenPrivacyModal}
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 text-xs font-medium rounded-lg transition-colors"
+            title="Privacy & Community Guidelines"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-[#8B1A1A]" />
+            Privacy & Policy
+          </button>
+        )}
       </div>
     </header>
   );

@@ -8,6 +8,7 @@ import LiveStatusBar from './components/LiveStatusBar';
 import PandalDetailSheet from './components/PandalDetailSheet';
 import AdminDrawer from './components/AdminDrawer';
 import EventsModal from './components/EventsModal';
+import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import AddPandalPage from './components/AddPandalPage';
 import { initialPandals, LOCALITY_COORDINATES, BENGALURU_CENTER } from './data/pandalsData';
 import { fetchPandalsFromSupabase, updateCrowdStatusInSupabase } from './lib/supabase';
@@ -72,6 +73,7 @@ export default function App() {
   // Modals & Drawers
   const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false);
   const [isEventsModalOpen, setIsEventsModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   // Geolocation trigger
   // Haversine formula — returns distance in km between two lat/lng points
@@ -334,6 +336,7 @@ export default function App() {
             onLocateMe={handleLocateMe}
             onOpenAdminDrawer={() => setIsAdminDrawerOpen(true)}
             onOpenEventsModal={() => setIsEventsModalOpen(true)}
+            onOpenPrivacyModal={() => setIsPrivacyModalOpen(true)}
             onNavigateToAdmin={() => navigateTo('/add-pandal')}
             verifiedCount={verifiedCount}
           />
@@ -350,6 +353,7 @@ export default function App() {
           activeFilter={activeFilter}
           onFilterToggle={handleFilterToggle}
           onAddPandalClick={() => navigateTo('/add-pandal')}
+          onOpenPrivacyModal={() => setIsPrivacyModalOpen(true)}
         />
 
         <MapControls
@@ -478,6 +482,12 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsPrivacyModalOpen(true)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-gray-200"
+                >
+                  Policy
+                </button>
                 <button
                   onClick={() => navigateTo('/add-pandal')}
                   className="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm"
@@ -655,7 +665,12 @@ export default function App() {
           onUpdateCrowd={handleUpdateCrowd}
           isSaved={savedPandalIds.includes(selectedPandal.id)}
           onToggleSave={handleToggleSave}
-          onOpenClaimModal={() => alert('Organizers: Please send listing proof to verify@ganapathimap.org')}
+          onOpenClaimModal={(pandal) => {
+            const email = 'contactatonesolutions@gmail.com';
+            const subject = encodeURIComponent(`Claim Listing: ${pandal?.name || 'Pandal'}`);
+            const body = encodeURIComponent(`Hello GanapathiMap Team,\n\nI am an organizer for "${pandal?.name || 'Pandal'}" located at ${pandal?.locality || 'Bengaluru'}.\n\nI would like to claim and verify this listing.\n\nOrganizer Details:\nName:\nPhone:\nProof of Listing / Document:\n`);
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+          }}
           onShowDirections={(pandal) => {
             if (!userLocation) {
               handleLocateMe();
@@ -689,6 +704,11 @@ export default function App() {
         onClose={() => setIsEventsModalOpen(false)}
         pandals={pandals}
         onSelectPandal={(p) => { setSelectedPandal(p); setIsEventsModalOpen(false); }}
+      />
+
+      <PrivacyPolicyModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
       />
 
     </div>
