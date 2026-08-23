@@ -121,12 +121,12 @@ export default function App() {
     // Reset best accuracy and stop any previous watch
     stopGeoWatch();
     bestAccuracyRef.current = Infinity;
-    setLocationToast('Detecting your location...');
+    setLocationToast('Finding pandals near you...');
 
-    // Auto-stop after 15 s regardless of accuracy
+    // Auto-stop after 15 s
     const stopTimer = setTimeout(() => {
       stopGeoWatch();
-      setTimeout(() => setLocationToast(''), 4000);
+      setTimeout(() => setLocationToast(''), 3000);
     }, 15000);
 
     geoWatchRef.current = navigator.geolocation.watchPosition(
@@ -142,13 +142,12 @@ export default function App() {
           setUserLocation(coords);
           setNearestPandal(null);
 
+          setLocationToast('Finding pandals near you...');
+
           if (accuracy <= 50) {
             stopGeoWatch();
             clearTimeout(stopTimer);
-            setLocationToast(`Location calibrated to your position (${accuracy} m accuracy)`);
-            setTimeout(() => setLocationToast(''), 4000);
-          } else {
-            setLocationToast(`Calibrating position… (${accuracy} m accuracy)`);
+            setTimeout(() => setLocationToast(''), 3000);
           }
         }
       },
@@ -161,7 +160,7 @@ export default function App() {
           3: 'Location request timed out. Try again or click the map.',
         };
         setLocationToast(msgs[err.code] || 'Could not detect location.');
-        setTimeout(() => setLocationToast(''), 6000);
+        setTimeout(() => setLocationToast(''), 5000);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
@@ -417,8 +416,8 @@ export default function App() {
           <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
             {/* Brand pill */}
             <div className="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur-md border border-gray-200 shadow-md rounded-full px-3 py-1.5">
-              <div className="w-5 h-5 rounded overflow-hidden shrink-0">
-                <img src="/src/assets/logo.png" alt="logo" className="w-full h-full object-contain" />
+              <div className="w-6 h-6 rounded-lg overflow-hidden shrink-0 bg-white border border-gray-100 p-0.5 shadow-sm">
+                <img src="https://res.cloudinary.com/dtigmagdl/image/upload/v1787463247/ce78f018-53df-49ee-92d3-0df947c0fa00_y8nhqu.png" alt="GanapathiMap Logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-xs font-bold text-gray-900">Ganapathi<span className="text-[#8B1A1A]">Map</span></span>
             </div>

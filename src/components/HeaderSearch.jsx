@@ -1,5 +1,6 @@
 import { Navigation, Calendar, Plus } from 'lucide-react';
-import logoImg from '../assets/logo.png';
+
+const logoImg = 'https://res.cloudinary.com/dtigmagdl/image/upload/v1787463247/ce78f018-53df-49ee-92d3-0df947c0fa00_y8nhqu.png';
 
 export default function HeaderSearch({
   onLocateMe,
@@ -13,7 +14,7 @@ export default function HeaderSearch({
       
       {/* Brand */}
       <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-0.5 shrink-0">
+        <div className="w-8 h-8 rounded-xl overflow-hidden border border-gray-100 bg-white shadow-sm flex items-center justify-center p-0.5 shrink-0">
           <img src={logoImg} alt="GanapathiMap Logo" className="w-full h-full object-contain" />
         </div>
         <div className="flex items-center gap-1.5">

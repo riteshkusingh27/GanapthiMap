@@ -181,11 +181,16 @@ export default function DiscoverySidebar({
 
             {/* Title + Live badge */}
             <div className="flex items-center justify-between mb-3">
-              <div>
-                <h2 className="text-[13px] font-black text-gray-900 tracking-tight">
-                  Explore Pandals
-                </h2>
-                <p className="text-[10px] text-gray-400 font-medium mt-0.5">Bengaluru Ganesh Utsava 2025</p>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 bg-white border border-gray-100 p-0.5 shadow-sm">
+                  <img src="https://res.cloudinary.com/dtigmagdl/image/upload/v1787463247/ce78f018-53df-49ee-92d3-0df947c0fa00_y8nhqu.png" alt="GanapathiMap Icon" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <h2 className="text-[13px] font-black text-gray-900 tracking-tight leading-tight">
+                    Explore Pandals
+                  </h2>
+                  <p className="text-[10px] text-gray-400 font-medium">Bengaluru Ganesh Utsava 2025</p>
+                </div>
               </div>
               <div className="flex items-center gap-1.5">
                 {onAddPandalClick && (
