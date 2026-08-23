@@ -97,18 +97,22 @@ export default function App() {
 
   // Helper: update nearest pandal from coords
   const updateNearest = (coords) => {
-    if (pandals.length === 0) return;
+    if (!pandals || pandals.length === 0) return null;
     const nearest = pandals.reduce((closest, pandal) => {
-      const d = haversineKm(coords.lat, coords.lng, pandal.latitude, pandal.longitude);
+      const d = haversineKm(coords.lat, coords.lng, Number(pandal.latitude), Number(pandal.longitude));
       return d < closest.dist ? { pandal, dist: d } : closest;
     }, { pandal: pandals[0], dist: Infinity });
-    setSelectedPandal(nearest.pandal);
-    setNearestPandal({ pandal: nearest.pandal, distKm: nearest.dist });
-    setIsFullSheetOpen(false);
-    return nearest;
+    if (nearest && nearest.pandal) {
+      setSelectedPandal(nearest.pandal);
+      setNearestPandal({ pandal: nearest.pandal, distKm: nearest.dist });
+      setIsFullSheetOpen(false);
+      return nearest;
+    }
+    return null;
   };
 
   const handleLocateMe = () => {
+    setActiveFilter('near_me');
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser.');
       return;
@@ -122,7 +126,6 @@ export default function App() {
     // Auto-stop after 15 s regardless of accuracy
     const stopTimer = setTimeout(() => {
       stopGeoWatch();
-      // Toast is already showing the best result, just clear it
       setTimeout(() => setLocationToast(''), 4000);
     }, 15000);
 
@@ -152,7 +155,7 @@ export default function App() {
             clearTimeout(stopTimer);
             setLocationToast(
               `Location locked (${accuracy} m accuracy)${
-                nearest ? ` · Nearest: ${nearest.pandal.name} ${distText}` : ''
+                nearest && nearest.pandal ? ` · Nearest: ${nearest.pandal.name} ${distText}` : ''
               }`
             );
             setTimeout(() => setLocationToast(''), 5000);
@@ -160,7 +163,7 @@ export default function App() {
             // Good enough to show, keep refining
             setLocationToast(
               `Refining location… ${accuracy} m accuracy${
-                nearest ? ` · ${nearest.pandal.name} ${distText}` : ''
+                nearest && nearest.pandal ? ` · ${nearest.pandal.name} ${distText}` : ''
               }`
             );
           }
@@ -231,12 +234,15 @@ export default function App() {
   }, [pandals, searchQuery, selectedLocality, activeFilter, userLocation]);
 
   const handleFilterToggle = (filterType) => {
-    setActiveFilter((prev) => {
-      const nextFilter = prev === filterType ? 'all' : filterType;
+    const nextFilter = activeFilter === filterType ? 'all' : filterType;
+    setActiveFilter(nextFilter);
 
-      if (nextFilter === 'near_me') {
-        const originLat = userLocation?.lat ?? BENGALURU_CENTER[0];
-        const originLng = userLocation?.lng ?? BENGALURU_CENTER[1];
+    if (nextFilter === 'near_me') {
+      if (!userLocation) {
+        handleLocateMe();
+      } else {
+        const originLat = userLocation.lat;
+        const originLng = userLocation.lng;
 
         const sorted = [...pandals]
           .map((p) => ({
@@ -251,9 +257,7 @@ export default function App() {
           setNearestPandal({ pandal: closest.pandal, distKm: closest.distKm });
         }
       }
-
-      return nextFilter;
-    });
+    }
   };
 
   const handleToggleSave = (pandalId) => {

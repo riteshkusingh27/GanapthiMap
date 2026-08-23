@@ -59,15 +59,34 @@ const travelTimes = (distKm) => ({
 
 // Direction line + distance badge + arrow marker overlay
 function DirectionOverlay({ from, to, distKm }) {
-  const bearing = bearingDeg(from[0], from[1], to[0], to[1]);
-  const mid     = interpolate(from[0], from[1], to[0], to[1], 0.5);
-  const arrow   = interpolate(from[0], from[1], to[0], to[1], 0.62);
+  if (
+    !from || !to ||
+    isNaN(Number(from[0])) || isNaN(Number(from[1])) ||
+    isNaN(Number(to[0])) || isNaN(Number(to[1])) ||
+    isNaN(Number(distKm)) || distKm == null
+  ) {
+    return null;
+  }
 
-  const distLabel = distKm < 1
-    ? `${Math.round(distKm * 1000)} m`
-    : `${distKm.toFixed(1)} km`;
+  const fromLat = Number(from[0]);
+  const fromLng = Number(from[1]);
+  const toLat = Number(to[0]);
+  const toLng = Number(to[1]);
+  const numDist = Number(distKm);
 
-  const { walk, drive } = travelTimes(distKm);
+  const bearing = bearingDeg(fromLat, fromLng, toLat, toLng);
+  const mid     = interpolate(fromLat, fromLng, toLat, toLng, 0.5);
+  const arrow   = interpolate(fromLat, fromLng, toLat, toLng, 0.62);
+
+  if (isNaN(bearing) || !mid || isNaN(mid[0]) || isNaN(mid[1]) || !arrow || isNaN(arrow[0]) || isNaN(arrow[1])) {
+    return null;
+  }
+
+  const distLabel = numDist < 1
+    ? `${Math.round(numDist * 1000)} m`
+    : `${numDist.toFixed(1)} km`;
+
+  const { walk, drive } = travelTimes(numDist);
 
   // Combined distance + time badge at midpoint
   const badgeIcon = L.divIcon({
@@ -184,7 +203,7 @@ const createCustomMarkerIcon = (pandal, isSelected) => {
   }
 
   const selectedClass = isSelected ? 'scale-125 z-50 ring-4 ring-[#7A1C1C] shadow-2xl' : 'hover:scale-110';
-  const photoUrl = pandal.coverImage || (pandal.images && pandal.images[0]) || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&w=300&q=80';
+  const photoUrl = pandal.coverImage || (pandal.images && pandal.images[0]) || 'https://pub-1c814e1821a0777ffe4eb60b359a79b5.r2.dev/bengaluru-ganesha-1.jpg';
 
   const html = `
     <div class="relative flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${selectedClass}" style="width: 44px; height: 50px;">
@@ -235,12 +254,12 @@ function MapController({ selectedPandal, userLocation, setMapInstance }) {
 
   useEffect(() => {
     const handleResize = () => {
-      map.invalidateSize();
+      try { map.invalidateSize(); } catch {}
     };
 
-    map.invalidateSize();
-    const timer1 = setTimeout(() => map.invalidateSize(), 150);
-    const timer2 = setTimeout(() => map.invalidateSize(), 500);
+    try { map.invalidateSize(); } catch {}
+    const timer1 = setTimeout(() => { try { map.invalidateSize(); } catch {} }, 150);
+    const timer2 = setTimeout(() => { try { map.invalidateSize(); } catch {} }, 500);
 
     window.addEventListener('resize', handleResize);
     return () => {
@@ -252,17 +271,19 @@ function MapController({ selectedPandal, userLocation, setMapInstance }) {
 
   useEffect(() => {
     if (selectedPandal && !isNaN(Number(selectedPandal.latitude)) && !isNaN(Number(selectedPandal.longitude))) {
-      map.flyTo([Number(selectedPandal.latitude), Number(selectedPandal.longitude)], 15, {
-        duration: 1.2
-      });
+      try {
+        map.flyTo([Number(selectedPandal.latitude), Number(selectedPandal.longitude)], 15, { duration: 1.2 });
+      } catch (err) {
+        console.warn('Map flyTo error:', err);
+      }
+    } else if (userLocation && !isNaN(Number(userLocation.lat)) && !isNaN(Number(userLocation.lng))) {
+      try {
+        map.flyTo([Number(userLocation.lat), Number(userLocation.lng)], 15, { duration: 1.2 });
+      } catch (err) {
+        console.warn('Map flyTo error:', err);
+      }
     }
-  }, [selectedPandal, map]);
-
-  useEffect(() => {
-    if (userLocation) {
-      map.flyTo([userLocation.lat, userLocation.lng], 15, { duration: 1.2 });
-    }
-  }, [userLocation, map]);
+  }, [selectedPandal, userLocation, map]);
 
   return null;
 }
@@ -272,15 +293,19 @@ export default function MapView({ pandals, selectedPandal, onSelectPandal, userL
     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
+  const mapCenter = userLocation && !isNaN(Number(userLocation.lat)) && !isNaN(Number(userLocation.lng))
+    ? [Number(userLocation.lat), Number(userLocation.lng)]
+    : BENGALURU_CENTER;
+
   return (
     <div className="w-full h-full absolute inset-0 z-0">
       <MapContainer
-        center={userLocation ? [userLocation.lat, userLocation.lng] : BENGALURU_CENTER}
+        center={mapCenter}
         zoom={13}
         minZoom={11}
         maxZoom={18}
         maxBounds={BENGALURU_BOUNDS}
-        maxBoundsViscosity={1.0}
+        maxBoundsViscosity={0.2}
         scrollWheelZoom={true}
         className="w-full h-full"
         zoomControl={false}

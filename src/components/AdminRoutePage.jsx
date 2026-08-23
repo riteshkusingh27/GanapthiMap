@@ -7,6 +7,7 @@ import {
 import MapView from './MapView';
 import EditPandalModal from './EditPandalModal';
 import { LOCALITY_COORDINATES } from '../data/pandalsData';
+import { uploadImageToR2 } from '../lib/r2Storage';
 
 export default function AdminRoutePage({
   pandals, onAddPandal, onUpdatePandal, onDeletePandal, onBackToMap, onSelectPandalOnMap
@@ -14,10 +15,12 @@ export default function AdminRoutePage({
   // Photo & Location States
   const [photo, setPhoto]             = useState(null);
   const [coords, setCoords]           = useState({ lat: 12.9716, lng: 77.5946 });
-  const [gpsStatus, setGpsStatus]     = useState('idle'); // idle | locating | success | approx | manual
   const [gpsAccuracy, setGpsAccuracy] = useState(null);
+  const [gpsStatus, setGpsStatus]     = useState('idle'); // idle | locating | success | approx | manual
   const [streetName, setStreetName]   = useState('');
   const [localityName, setLocalityName] = useState('Bengaluru');
+  const [toast, setToast]             = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   // Search
   const [searchQuery, setSearchQuery]   = useState('');
@@ -178,9 +181,16 @@ export default function AdminRoutePage({
 
   // ─── Publish ─────────────────────────────────────────────────────────────────
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!photo) { showToast('Please capture or upload a photo first.'); return; }
     const name = streetName || 'New Pandal';
+    
+    setIsUploading(true);
+    showToast('Uploading photo to Cloudflare R2 storage...');
+    const r2Url = await uploadImageToR2(photo);
+    const finalPhoto = r2Url || photo;
+    setIsUploading(false);
+
     const newPandal = {
       id: `pandal-admin-${Date.now()}`,
       name,
@@ -202,8 +212,8 @@ export default function AdminRoutePage({
       annadanam: { available: false, timings: '', description: '' },
       facilities: { parking: false, toilets: false, drinkingWater: false, accessibility: false, firstAid: false },
       crowdLevel: 'Low',
-      coverImage: photo,
-      images: [photo],
+      coverImage: finalPhoto,
+      images: [finalPhoto],
       description: '',
       events: [],
       organizer: { claimed: true, name: '', contact: '' },
@@ -211,7 +221,7 @@ export default function AdminRoutePage({
       checkinsCount: 1,
     };
     onAddPandal(newPandal);
-    showToast(`Published "${name}" to the map.`);
+    showToast(`Published "${name}" with R2 image to map.`);
     setPhoto(null);
     setStreetName('');
     setGpsStatus('idle');

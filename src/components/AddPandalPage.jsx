@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import MapView from './MapView';
 import { getUserIp, checkIpCooldown, recordIpSubmission, savePandalToSupabase } from '../lib/supabase';
+import { uploadImageToR2 } from '../lib/r2Storage';
 
 export default function AddPandalPage({ onAddPandal, onBackToMap }) {
   // Photo & Location States
@@ -16,6 +17,7 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
   const [localityName, setLocalityName] = useState('Bengaluru');
   const [isEcoFriendly, setIsEcoFriendly] = useState(true);
   const [hasPrasad, setHasPrasad] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [toast, setToast] = useState('');
 
   // Camera Live Stream
@@ -202,8 +204,19 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
       return;
     }
 
-    const defaultCover = 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&w=1200&q=80';
-    const finalPhoto = photo || defaultCover;
+    const defaultCover = 'https://pub-1c814e1821a0777ffe4eb60b359a79b5.r2.dev/bengaluru-ganesha-1.jpg';
+    let finalPhoto = photo || defaultCover;
+
+    // Upload to Cloudflare R2 if custom photo provided
+    if (photo) {
+      setIsUploadingImage(true);
+      showToast('Uploading image to Cloudflare R2 storage...');
+      const r2Url = await uploadImageToR2(photo);
+      if (r2Url) {
+        finalPhoto = r2Url;
+      }
+      setIsUploadingImage(false);
+    }
 
     const newPandal = {
       id: `pandal-${Date.now()}`,
@@ -247,7 +260,7 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
     recordIpSubmission(uploaderIp);
     savePandalToSupabase(newPandal, uploaderIp);
     onAddPandal(newPandal);
-    showToast('Pandal published & saved to DB!');
+    showToast('Pandal published & image saved to Cloudflare R2!');
     setTimeout(() => {
       onBackToMap();
     }, 1000);

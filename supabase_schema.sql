@@ -2,7 +2,7 @@
 -- GANAPATHI MAP - SUPABASE DATABASE SCHEMA & ALL 50 SEED PANDALS
 -- Instructions: Copy and paste this script into your Supabase Dashboard:
 -- https://supabase.com/dashboard/project/kiawqprxtbicqodmyube/sql/new
--- =========================================================================
+-- ==================   =======================================================
 
 -- 1. Create Pandals Table
 CREATE TABLE IF NOT EXISTS public.pandals (
