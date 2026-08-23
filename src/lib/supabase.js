@@ -58,7 +58,7 @@ export async function fetchPandalsFromSupabase() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
+    if (!error && data) {
       return data.map(item => ({
         id: item.id,
         name: item.name,
@@ -87,21 +87,12 @@ export async function fetchPandalsFromSupabase() {
         likesCount: item.likes_count || 1,
         checkinsCount: item.checkins_count || 1
       }));
-    } else if (!error && data && data.length === 0) {
-      // Auto-seed DB with initial pandals if table is empty
-      console.log('Seeding Supabase DB with initial iconic Bengaluru pandals...');
-      for (const p of initialPandals) {
-        await savePandalToSupabase(p, 'system-seed');
-      }
-      return initialPandals;
     }
   } catch (err) {
-    console.warn('Supabase fetch fallback:', err);
+    console.warn('Supabase fetch notice:', err);
   }
 
-  // Fallback to localStorage or initial dataset
-  const saved = localStorage.getItem('ganapathimap_pandals');
-  return saved ? JSON.parse(saved) : initialPandals;
+  return [];
 }
 
 // Save Pandal to Supabase & Store Uploader IP

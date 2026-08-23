@@ -44,8 +44,8 @@ CREATE POLICY "Public Read Access" ON public.pandals FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Public Insert Access" ON public.pandals;
 CREATE POLICY "Public Insert Access" ON public.pandals FOR INSERT WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Public Update Access" ON public.pandals;
-CREATE POLICY "Public Update Access" ON public.pandals FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "Public Delete Access" ON public.pandals;
+CREATE POLICY "Public Delete Access" ON public.pandals FOR DELETE USING (true);
 
 -- 3. Seed ALL 50 Iconic Bengaluru Pandals
 INSERT INTO public.pandals (

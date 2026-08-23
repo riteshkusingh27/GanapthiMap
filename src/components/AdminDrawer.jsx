@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, ShieldCheck, CheckCircle, XCircle, Leaf, Sparkles, AlertCircle, Trash2, Eye } from 'lucide-react';
 
-export default function AdminDrawer({ isOpen, onClose, pandals, onApprove, onReject, onSelectPandal }) {
+export default function AdminDrawer({ isOpen, onClose, pandals, onApprove, onReject, onSelectPandal, onClearAll }) {
   if (!isOpen) return null;
 
   const [activeTab, setActiveTab] = useState('pending');
@@ -153,6 +153,19 @@ export default function AdminDrawer({ isOpen, onClose, pandals, onApprove, onRej
           ))
         )}
       </div>
+
+      {/* Admin Actions Footer */}
+      {onClearAll && pandals.length > 0 && (
+        <div className="p-4 bg-slate-50 border-t border-slate-200">
+          <button
+            onClick={onClearAll}
+            className="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete All {pandals.length} Pandals from Database
+          </button>
+        </div>
+      )}
     </div>
   );
 }
