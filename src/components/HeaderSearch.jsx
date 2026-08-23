@@ -1,6 +1,6 @@
 import { Navigation, Calendar, Plus } from 'lucide-react';
 
-const logoImg = 'https://res.cloudinary.com/dtigmagdl/image/upload/v1787463247/ce78f018-53df-49ee-92d3-0df947c0fa00_y8nhqu.png';
+const logoImg = 'https://res.cloudinary.com/dtigmagdl/image/upload/v1787463675/927b6a8c-c53d-4267-9960-1ca4c824e8cd_u1drzf.png';
 
 export default function HeaderSearch({
   onLocateMe,
@@ -12,19 +12,13 @@ export default function HeaderSearch({
   return (
     <header className="pointer-events-auto bg-white border border-gray-200 rounded-2xl shadow-lg px-3 py-2.5 flex items-center justify-between gap-4 font-sans">
       
-      {/* Brand */}
-      <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-xl overflow-hidden border border-gray-100 bg-white shadow-sm flex items-center justify-center p-0.5 shrink-0">
-          <img src={logoImg} alt="GanapathiMap Logo" className="w-full h-full object-contain" />
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="font-bold text-gray-900 text-sm tracking-tight leading-none whitespace-nowrap">
-            Ganapathi<span className="text-[#8B1A1A]">Map</span>
-          </span>
-          <span className="hidden sm:inline-block bg-gray-100 text-gray-500 text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
-            BLR
-          </span>
-        </div>
+      {/* Brand Logo */}
+      <div className="flex items-center shrink-0">
+        <img
+          src={logoImg}
+          alt="GanapathiMap"
+          className="h-11 sm:h-14 w-auto object-contain drop-shadow-sm max-w-[180px] sm:max-w-[240px]"
+        />
       </div>
 
       {/* Actions */}

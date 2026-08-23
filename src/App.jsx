@@ -415,11 +415,12 @@ export default function App() {
           {/* Floating top header on map */}
           <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
             {/* Brand pill */}
-            <div className="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur-md border border-gray-200 shadow-md rounded-full px-3 py-1.5">
-              <div className="w-6 h-6 rounded-lg overflow-hidden shrink-0 bg-white border border-gray-100 p-0.5 shadow-sm">
-                <img src="https://res.cloudinary.com/dtigmagdl/image/upload/v1787463247/ce78f018-53df-49ee-92d3-0df947c0fa00_y8nhqu.png" alt="GanapathiMap Logo" className="w-full h-full object-contain" />
-              </div>
-              <span className="text-xs font-bold text-gray-900">Ganapathi<span className="text-[#8B1A1A]">Map</span></span>
+            <div className="pointer-events-auto flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-md rounded-full px-3.5 py-1.5">
+              <img
+                src="https://res.cloudinary.com/dtigmagdl/image/upload/v1787463675/927b6a8c-c53d-4267-9960-1ca4c824e8cd_u1drzf.png"
+                alt="GanapathiMap"
+                className="h-10 w-auto object-contain max-w-[160px]"
+              />
             </div>
 
             <div className="flex items-center gap-1.5 pointer-events-auto">
