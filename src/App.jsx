@@ -12,6 +12,7 @@ import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import AddPandalPage from './components/AddPandalPage';
 import { initialPandals, LOCALITY_COORDINATES, BENGALURU_CENTER } from './data/pandalsData';
 import { fetchPandalsFromSupabase, updateCrowdStatusInSupabase } from './lib/supabase';
+import { safeSavePandalsToLocalStorage, isUserSubmittedPandal } from './lib/imageUtils';
 import { Navigation, Plus } from 'lucide-react';
 
 export default function App() {
@@ -31,20 +32,41 @@ export default function App() {
     setCurrentPath(path);
   };
 
-  // Local Storage Persistence
+  // Local Storage Persistence (Only keep user-submitted fresh pandals)
   const [pandals, setPandals] = useState(() => {
-    const saved = localStorage.getItem('ganapathimap_pandals');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('ganapathimap_pandals');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(isUserSubmittedPandal);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to read ganapathimap_pandals from localStorage:', e);
+    }
+    return [];
   });
 
-  const [savedPandalIds, setSavedPandalIds] = useState([]);
+  const [savedPandalIds, setSavedPandalIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ganapathimap_saved_ids');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
-    localStorage.setItem('ganapathimap_pandals', JSON.stringify(pandals));
+    safeSavePandalsToLocalStorage(pandals);
   }, [pandals]);
 
   useEffect(() => {
-    localStorage.setItem('ganapathimap_saved_ids', JSON.stringify(savedPandalIds));
+    try {
+      localStorage.setItem('ganapathimap_saved_ids', JSON.stringify(savedPandalIds));
+    } catch (e) {
+      console.warn('localStorage setItem saved_ids exception:', e);
+    }
   }, [savedPandalIds]);
 
   // Search & Filter State
@@ -81,8 +103,8 @@ export default function App() {
     const a =
       Math.sin(dLat / 2) ** 2 +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) ** 2;
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
 
@@ -250,6 +272,9 @@ export default function App() {
   const handleAddPandal = (newPandal) => {
     setPandals((prev) => [newPandal, ...prev]);
     setSelectedPandal(newPandal);
+    setSelectedLocality('All');
+    setActiveFilter('all');
+    setSearchQuery('');
   };
 
   const handleUpdatePandal = (updatedPandal) => {
@@ -279,8 +304,14 @@ export default function App() {
   useEffect(() => {
     fetchPandalsFromSupabase().then((data) => {
       if (Array.isArray(data)) {
-        setPandals(data);
-        localStorage.setItem('ganapathimap_pandals', JSON.stringify(data));
+        const userOnlyData = data.filter(isUserSubmittedPandal);
+        setPandals((prev) => {
+          const existingIds = new Set(userOnlyData.map((item) => item.id));
+          const localOnly = prev.filter((item) => isUserSubmittedPandal(item) && !existingIds.has(item.id));
+          const merged = [...localOnly, ...userOnlyData];
+          safeSavePandalsToLocalStorage(merged);
+          return merged;
+        });
       }
     });
   }, []);
@@ -528,11 +559,10 @@ export default function App() {
                 <button
                   key={f.id}
                   onClick={() => handleFilterToggle(f.id)}
-                  className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap ${
-                    activeFilter === f.id
+                  className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap ${activeFilter === f.id
                       ? 'bg-[#8B1A1A] text-white shadow-sm'
                       : 'bg-gray-100 text-gray-600'
-                  }`}
+                    }`}
                 >
                   {f.label}
                 </button>
@@ -577,7 +607,7 @@ export default function App() {
                           </span>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
                           <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse inline-block" /> Open

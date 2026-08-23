@@ -54,7 +54,7 @@ export default function EditPandalModal({ isOpen, onClose, pandal, onSave, onDel
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto font-sans">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
-        
+
         {/* Header */}
         <div className="bg-slate-950 text-white p-4 sm:p-5 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ export default function EditPandalModal({ isOpen, onClose, pandal, onSave, onDel
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
-          
+
           {/* Pandal Photo Preview & Replace */}
           <div>
             <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">

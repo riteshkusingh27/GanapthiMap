@@ -207,13 +207,19 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
     const defaultCover = 'https://pub-1c814e1821a0777ffe4eb60b359a79b5.r2.dev/bengaluru-ganesha-1.jpg';
     let finalPhoto = photo || defaultCover;
 
-    // Upload to Cloudflare R2 if custom photo provided
+    // Upload to Cloudflare R2 if custom photo provided with compressed fallback
     if (photo) {
       setIsUploadingImage(true);
-      showToast('Uploading image to Cloudflare R2 storage...');
-      const r2Url = await uploadImageToR2(photo);
-      if (r2Url) {
-        finalPhoto = r2Url;
+      showToast('Processing photo & publishing...');
+      try {
+        const r2Url = await uploadImageToR2(photo);
+        if (r2Url && typeof r2Url === 'string' && !r2Url.startsWith('data:')) {
+          finalPhoto = r2Url;
+        } else {
+          finalPhoto = await compressBase64Image(photo, 600, 600, 0.6);
+        }
+      } catch {
+        finalPhoto = await compressBase64Image(photo, 600, 600, 0.6);
       }
       setIsUploadingImage(false);
     }
@@ -268,7 +274,7 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
 
   return (
     <div className="w-full h-full min-h-screen bg-[#FAFAFA] text-gray-900 font-sans antialiased flex flex-col overflow-y-auto">
-      
+
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 border border-gray-700">
@@ -304,7 +310,7 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
 
       {/* Main Scrollable Form Body */}
       <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 space-y-6 pb-20 overflow-y-auto">
-        
+
         {/* STEP 1: CLICK LIVE PHOTO */}
         <section className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
@@ -430,9 +436,8 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
 
           {/* Toggles */}
           <div className="grid grid-cols-2 gap-3 pt-1">
-            <label className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold cursor-pointer transition ${
-              isEcoFriendly ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-600 border-gray-200'
-            }`}>
+            <label className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold cursor-pointer transition ${isEcoFriendly ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-600 border-gray-200'
+              }`}>
               <input
                 type="checkbox"
                 checked={isEcoFriendly}
@@ -443,9 +448,8 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
               Eco Clay Idol
             </label>
 
-            <label className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold cursor-pointer transition ${
-              hasPrasad ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-gray-50 text-gray-600 border-gray-200'
-            }`}>
+            <label className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold cursor-pointer transition ${hasPrasad ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-gray-50 text-gray-600 border-gray-200'
+              }`}>
               <input
                 type="checkbox"
                 checked={hasPrasad}

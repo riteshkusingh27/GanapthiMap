@@ -52,4 +52,9 @@ export const LOCALITY_COORDINATES = {
   Horamavu: [13.0398, 77.6598],
   Vidyaranyapura: [13.0812, 77.5598],
   Mathikere: [13.0345, 77.5589],
+  Sanjaynagar: [13.0398, 77.5798],
+  Seshadripuram: [12.9898, 77.5756],
+  Chamarajpet: [12.9589, 77.5724]
 };
+
+export const LOCALITIES = ['All', ...Object.keys(LOCALITY_COORDINATES)];
