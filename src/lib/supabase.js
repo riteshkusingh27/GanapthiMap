@@ -38,7 +38,7 @@ export function checkIpCooldown(ip) {
         allowed: false,
         remainingMins,
         remainingSecs,
-        message: `IP Cooldown active: Please wait ${remainingMins} min before adding another pandal.`
+        message: `Please wait 5 minutes before uploading the next pandal.`
       };
     }
   }

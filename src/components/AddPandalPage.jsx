@@ -6,6 +6,7 @@ import {
 import MapView from './MapView';
 import { getUserIp, checkIpCooldown, recordIpSubmission, savePandalToSupabase } from '../lib/supabase';
 import { uploadImageToR2 } from '../lib/r2Storage';
+import { compressBase64Image } from '../lib/imageUtils';
 
 export default function AddPandalPage({ onAddPandal, onBackToMap }) {
   // Photo & Location States
@@ -18,6 +19,9 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
   const [isEcoFriendly, setIsEcoFriendly] = useState(true);
   const [hasPrasad, setHasPrasad] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState(0);
+  const [cooldownError, setCooldownError] = useState('');
   const [toast, setToast] = useState('');
 
   // Camera Live Stream
@@ -200,19 +204,24 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
     const uploaderIp = await getUserIp();
     const cooldown = checkIpCooldown(uploaderIp);
     if (!cooldown.allowed) {
-      showToast(cooldown.message);
+      setCooldownError(cooldown.message);
       return;
     }
+    setCooldownError('');
 
     const defaultCover = 'https://pub-1c814e1821a0777ffe4eb60b359a79b5.r2.dev/bengaluru-ganesha-1.jpg';
     let finalPhoto = photo || defaultCover;
 
     // Upload to Cloudflare R2 if custom photo provided with compressed fallback
+    setIsSubmitting(true);
+    setSubmitProgress(10);
+
     if (photo) {
       setIsUploadingImage(true);
-      showToast('Processing photo & publishing...');
+      setSubmitProgress(30);
       try {
         const r2Url = await uploadImageToR2(photo);
+        setSubmitProgress(70);
         if (r2Url && typeof r2Url === 'string' && !r2Url.startsWith('data:')) {
           finalPhoto = r2Url;
         } else {
@@ -223,6 +232,8 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
       }
       setIsUploadingImage(false);
     }
+
+    setSubmitProgress(90);
 
     const newPandal = {
       id: `pandal-${Date.now()}`,
@@ -266,10 +277,12 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
     recordIpSubmission(uploaderIp);
     savePandalToSupabase(newPandal, uploaderIp);
     onAddPandal(newPandal);
-    showToast('Pandal published & image saved to Cloudflare R2!');
+    setSubmitProgress(100);
     setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitProgress(0);
       onBackToMap();
-    }, 1000);
+    }, 600);
   };
 
   return (
@@ -462,13 +475,38 @@ export default function AddPandalPage({ onAddPandal, onBackToMap }) {
           </div>
 
           {/* Submit CTA */}
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-[#8B1A1A] to-[#a82323] hover:from-[#721515] hover:to-[#8B1A1A] active:scale-98 text-white font-black text-sm py-3.5 rounded-xl shadow-lg shadow-[#8B1A1A]/20 transition flex items-center justify-center gap-2 cursor-pointer mt-2"
-          >
-            <Sparkles className="w-4 h-4" />
-            Publish Pandal to Map
-          </button>
+          <div className="mt-2 space-y-2">
+            {isSubmitting && (
+              <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#8B1A1A] to-amber-500 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${submitProgress}%` }}
+                />
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-gradient-to-r from-[#8B1A1A] to-[#a82323] hover:from-[#721515] hover:to-[#8B1A1A] active:scale-98 text-white font-black text-sm py-3.5 rounded-xl shadow-lg shadow-[#8B1A1A]/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {submitProgress < 70 ? 'Uploading photo...' : 'Publishing...'}
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Publish Pandal to Map
+                </>
+              )}
+            </button>
+            {cooldownError && (
+              <p className="text-center text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                ⏳ {cooldownError}
+              </p>
+            )}
+          </div>
         </form>
 
       </main>
