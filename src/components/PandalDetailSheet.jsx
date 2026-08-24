@@ -11,7 +11,8 @@ import {
   Utensils,
   ShieldCheck,
   Users,
-  ChevronRight
+  ChevronRight,
+  ImageOff
 } from 'lucide-react';
 
 export default function PandalDetailSheet({
@@ -66,12 +67,23 @@ export default function PandalDetailSheet({
       )}
 
       {/* Top Image Banner */}
-      <div className="relative h-72 w-full bg-slate-100 shrink-0 cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
-        <img
-          src={currentImg}
-          alt={pandal.name}
-          className="w-full h-full object-cover transition-opacity duration-300"
-        />
+      <div className="relative h-72 w-full bg-slate-100 shrink-0 cursor-pointer" onClick={() => currentImg ? setIsLightboxOpen(true) : null}>
+        {currentImg ? (
+          <img
+            src={currentImg}
+            alt={pandal.name}
+            className="w-full h-full object-cover transition-opacity duration-300"
+            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling && (e.target.nextSibling.style.display = 'flex'); }}
+          />
+        ) : null}
+        {!currentImg && (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 gap-3">
+            <div className="w-16 h-16 rounded-2xl bg-slate-300/60 flex items-center justify-center">
+              <ImageOff className="w-8 h-8 text-slate-400" />
+            </div>
+            <span className="text-sm font-semibold text-slate-400 tracking-wide">No Photo Available</span>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-black/20" />
 
         {/* Top Controls */}

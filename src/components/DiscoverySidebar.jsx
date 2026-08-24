@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Search, Star, X, MapPin, Clock, Leaf, Flame, Sparkles, Users, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Star, X, MapPin, Clock, Leaf, Flame, Sparkles, Users, ShieldCheck, ImageOff } from 'lucide-react';
 
 const CATEGORY_CONFIG = {
   featured: {
@@ -71,11 +71,19 @@ function PandalCard({ pandal, isSelected, onClick }) {
         <div className={`w-[62px] h-[62px] rounded-xl overflow-hidden border-2 transition-all duration-200 ${
           isSelected ? 'border-[#8B1A1A]/40 shadow-md shadow-[#8B1A1A]/15' : 'border-gray-100 group-hover:border-gray-200'
         }`}>
-          <img
-            src={pandal.coverImage}
-            alt={pandal.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+          {pandal.coverImage ? (
+            <img
+              src={pandal.coverImage}
+              alt={pandal.name}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 gap-1">
+              <ImageOff className="w-5 h-5 text-slate-400" />
+              <span className="text-[8px] font-semibold text-slate-400 leading-none">No Photo</span>
+            </div>
+          )}
         </div>
         {pandal.status === 'verified' && (
           <div className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#8B1A1A] rounded-full flex items-center justify-center border-2 border-white shadow-sm">

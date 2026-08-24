@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Navigation, Star, ChevronRight, Clock, MapPin, Leaf, Sparkles, Flame, XCircle, PersonStanding, Car } from 'lucide-react';
+import { X, Navigation, Star, ChevronRight, Clock, MapPin, Leaf, Sparkles, Flame, XCircle, PersonStanding, Car, ImageOff } from 'lucide-react';
 
 // Live Aarti countdown helper
 function getNextAartiInfo(aartiTimingsStr) {
@@ -73,7 +73,21 @@ export default function FloatingPandalCard({
 
         {/* Cover Image */}
         <div className="relative h-36">
-          <img src={pandal.coverImage} alt={pandal.name} className="w-full h-full object-cover" />
+          {pandal.coverImage ? (
+            <img
+              src={pandal.coverImage}
+              alt={pandal.name}
+              className="w-full h-full object-cover"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 gap-2">
+              <div className="w-12 h-12 rounded-xl bg-slate-300/60 flex items-center justify-center">
+                <ImageOff className="w-6 h-6 text-slate-400" />
+              </div>
+              <span className="text-xs font-semibold text-slate-400">No Photo</span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
           <button
             onClick={onClose}
